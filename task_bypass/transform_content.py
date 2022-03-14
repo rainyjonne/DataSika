@@ -3,8 +3,8 @@
 ## NOTE: might need to think of some parrellal solutions for this function
 
 import pandas as pd
-from .tasktypes.transform.decompress_content import decompress_content
-from .tasktypes.transform.transform_to_dataframe import transform_to_dataframe
+from task_bypass.tasktypes.transform.decompress_content import decompress_content
+from task_bypass.tasktypes.transform.transform_to_dataframe import transform_to_dataframe
 
 def transform_content(task_id, inputs, output, function, _from_output):
     if 'name' not in output:

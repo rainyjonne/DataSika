@@ -2,8 +2,8 @@
 ## NOTE: might need to think of some parrellal solutions for this function
 
 import pandas as pd 
-from .tasktypes.filter.xpath import xpath
-from .tasktypes.filter.sql import sql
+from task_bypass.tasktypes.filter.xpath import xpath
+from task_bypass.tasktypes.filter.sql import sql
 
 def filter_content(task_id, inputs, output, function, _from_output, _last_output_name):
     user_input = inputs['user_input']

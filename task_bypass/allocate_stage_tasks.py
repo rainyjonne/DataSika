@@ -1,6 +1,6 @@
 # stage(tasks) function 
 from itertools import cycle
-from .categorize_task import categorize_task
+from task_bypass.categorize_task import categorize_task
 
 def allocate_stage_tasks(tasks):
     tasks_cycle= cycle(tasks)

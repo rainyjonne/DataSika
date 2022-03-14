@@ -1,7 +1,7 @@
 # categorize the task based on the task type
-from .read_content import read_content
-from .filter_content import filter_content
-from .transform_content import transform_content
+from task_bypass.read_content import read_content
+from task_bypass.filter_content import filter_content
+from task_bypass.transform_content import transform_content
 
 def categorize_task(task, _from_output = None, _output_name = None):
     if task['type'] == 'read':

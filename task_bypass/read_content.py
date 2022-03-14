@@ -2,8 +2,8 @@
 ## read content based on user & task inputs
 ## NOTE: might need to think of some parrellal solutions for this function
 import pandas as pd
-from .tasktypes.read.webpage_request import webpage_request
-from .tasktypes.read.http_request import http_request
+from task_bypass.tasktypes.read.webpage_request import webpage_request
+from task_bypass.tasktypes.read.http_request import http_request
 
 
 def read_content(task_id, inputs, output, function, _from_output = None):
