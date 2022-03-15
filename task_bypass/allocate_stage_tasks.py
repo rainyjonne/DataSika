@@ -44,7 +44,7 @@ def allocate_stage_tasks(tasks):
     print("========================================")
     print("tasks that have done:")
     print("-----------------------------------------------------------------")
-    print(done_tasks)
+    #print(done_tasks)
     print("========================================")
     print("the last output:")
     print("-----------------------------------------------------------------")
