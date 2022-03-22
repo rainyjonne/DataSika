@@ -1,10 +1,15 @@
 # http request function
 import requests as reqs
 
-def http_request(url, output_format):
+def http_request(url):
     response = reqs.get(url)
-    if output_format == "binary":
+    
+    ##REMINDER:
+    # return bytes if the file hasn't been decompress yet
+    if '.gz' in url:
         result = response.content
-    else:
-        result = response
+        return result
+    
+    # otherwise return pure text
+    result = response.text
     return result
