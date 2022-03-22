@@ -5,48 +5,38 @@ schedule:
 
 pipeline:
   stages:
-    - name: airbnb-stage
+    - id: airbnb-stage
+      description: "stages for airbnb data"
       tasks:
         # id: <verb>
         # user_input:
         #   fields:
         #     - name: <what you will get back after the syntax> <noun>
-        - id: webscrap-airbnb
-          name: "get airbnb website page url"
+        - id: webscrap_airbnb
+          description: "get airbnb website page url"
           type: read
           function: http-request
           inputs:
             user_input:
-              type: str
               file_name: 'input.csv'
               file_format: csv
-              one_field: true
-              field: url 
               # value: 'http://insideairbnb.com/get-the-data.html' (inside the csv file)
-          output:
-            type: list
-            format: binary
-        - id: extract-table-content
-          name: "get table content by xpath syntax"
+        - id: extract_table_content
+          description: "get table content by xpath syntax"
           type: filter
           function: xpath
           inputs:
             user_input:
-              type: str
-              value: '//table[@class="table table-hover table-striped tokyo"]//tr'
+              field: '//table[@class="table table-hover table-striped tokyo"]//tr'
             task_inputs:
-              - type: list
-                from: webscrap-airbnb
-          output:
-            type: list
-        - id: extract-row-content
-          name: "get row content by column names & xpath syntax"
+              - from: webscrap_airbnb
+        - id: extract_row_content
+          description: "get row content by column names & xpath syntax"
           type: filter
           function: xpath
           # use for loop to do things for each element(row)
           inputs:
             user_input:
-              type: dataframe 
               fields:
                 - name: time
                   value: './/td[1]/text()'
@@ -55,110 +45,76 @@ pipeline:
                 - name: file_link
                   value: './/td[3]//a/@href'
             task_inputs:
-              - type: list
-                from: extract-table-content
-          output:
-            type: dataframe
-            name: airbnb_df
-        - id: filter-date
-          name: "get date-filtered data by sql syntax"
+              - from: extract_table_content
+        - id: filter_date
+          description: "get date-filtered data by sql syntax"
           type: filter
           function: sql
           inputs:
             user_input:
-              type: str
-              value: "
+              field: "
                     SELECT `time`, `description`, `file_link`
-                    FROM airbnb_df
+                    FROM extract_row_content 
                     WHERE time = '28 December, 2021'
                   "
             task_inputs:
-              - type: dataframe
-                from: extract-row-content
-          output:
-            type: dataframe
-            name: filtered_df
-        - id: get-listing-file-link
-          name: "get file link by sql syntax"
+              - from: extract_row_content
+        - id: get_listing_file_link
+          description: "get file link by sql syntax"
           type: filter
           function: sql
           inputs:
             user_input:
-              type: str 
-              value: "
+              field: "
                     SELECT `file_link`
-                    FROM filtered_df
+                    FROM filter_date
                     WHERE description
                     LIKE '%listings data%'
                   "
             task_inputs:
-              - type: dataframe
-                from: filter-date
-          output:
-            type: dataframe
-            name: file_link_df
-        - id: request-listing-file
-          name: "request file link"
+              - from: filter_date
+        - id: request_listing_file
+          description: "request file link"
           type: read
           function: http-request
           inputs:
             task_inputs:
-              - type: dataframe
-                extract_field: file_link
-                from: get-listing-file-link
-          output:
-            type: bytes
-            format: binary
+              - extract_field: file_link
+                from: get_listing_file_link
         # HOOK
-        - id: decompress-file-str
-          name: "decompress file str"
+        - id: decompress_file_str
+          description: "decompress file str"
           type: transform
           function: decompress
           inputs:
             task_inputs:
-              - type: bytes
-                from: request-listing-file
-          output:
-            type: str
-            description: "decompressed csv strs"
-        - id: read-csv-str-to-table
-          name: "read csv str to dataframe"
+              - from: request_listing_file
+        - id: read_csv_str_to_table
+          description: "read csv str to dataframe"
           type: transform
           function: transform-to-dataframe
           inputs:
             task_inputs:
-              - type: str
-                params:
-                  input_format: str
-                  str_type: csv
-                from: decompress-file-str
-          output:
-            type: dataframe
-            name: listing_df
-        - id: filter-transform-listing
-          name: "filter & transform fields by sql syntax"
+              - str_type: csv
+                from: decompress_file_str
+        - id: filter_transform_listing
+          description: "filter & transform fields by sql syntax"
           type: filter
           function: sql
           inputs:
             user_input:
-              type: str
-              value: "
+              field: "
                     SELECT
                         `id`, `listing_url`, `name`, `latitude`, `longitude`, `price`, `number_of_reviews`, 
                         `review_scores_rating`, `review_scores_accuracy`, `review_scores_cleanliness`, 
                         `review_scores_checkin`, `review_scores_communication`, `review_scores_location`,
                         `review_scores_value`,  (30-availability_30) as unavailability_30, 1 as key
-                    FROM listing_df
+                    FROM read_csv_str_to_table
                     WHERE has_availability = 't' 
                        AND ((90-availability_90) != 90 OR (365-availability_365) != 365)
-                  "
+                    "
             task_inputs:
-              - type: dataframe
-                from: read-csv-str-to-table
-          output:
-            type: dataframe
-            name: airbnb_df
-            description: "filtered & transformed airbnb dataframe is ready to be joined"
+              - from: read_csv_str_to_table
     - name: covid19-stage
       tasks:
         - id: request-covid-api
