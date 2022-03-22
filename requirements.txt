@@ -11,3 +11,4 @@ requests==2.27.1
 six==1.16.0
 sqldf==0.4.2
 urllib3==1.26.8
+pandasql==0.7.3
