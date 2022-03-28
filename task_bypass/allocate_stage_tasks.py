@@ -2,6 +2,10 @@
 from itertools import cycle
 from task_bypass.categorize_task import categorize_task
 
+#NEW
+# stage(tasks) function 
+from itertools import cycle
+
 def allocate_stage_tasks(tasks):
     tasks_cycle= cycle(tasks)
     # this is for testing
@@ -35,12 +39,12 @@ def allocate_stage_tasks(tasks):
             else:
                 # do something for merging stage
                 continue
-    print("========================================")
-    print("tasks that have done:")
-    print("-----------------------------------------------------------------")
+    #print("========================================")
+    #print("tasks that have done:")
+    #print("-----------------------------------------------------------------")
     #print(done_tasks)
-    print("========================================")
-    print("the last output:")
-    print("-----------------------------------------------------------------")
+    #print("========================================")
+    #print("the last output:")
+    #print("-----------------------------------------------------------------")
     
-    return done_task
+    return done_tasks

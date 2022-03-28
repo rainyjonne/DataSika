@@ -10,10 +10,13 @@ def transform_content(task_id, inputs, function, _from_output):
     
     # bytes to string
     if function == "decompress":
-        decom_str = decompress_content(_from_output)
+        comp_str = _from_output[_from_output.columns[0]][0]
+        decom_str = decompress_content(comp_str)
+        decom_df = pd.DataFrame([decom_str])
+        
         
         return {
-            task_id:  decom_str
+            task_id:  decom_df
         }
     
     if 'task_inputs' in inputs:
@@ -24,7 +27,8 @@ def transform_content(task_id, inputs, function, _from_output):
             
             if function == "transform-to-dataframe":
                 str_type = task_input['str_type']
-                result = transform_to_dataframe(_from_output, str_type)
+                content = _from_output[_from_output.columns[0]][0]
+                result = transform_to_dataframe(content, str_type)
                 
                 return {
                     task_id: result

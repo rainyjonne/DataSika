@@ -13,5 +13,5 @@ stages = process['pipeline']['stages']
 
 # test run
 # test here
-final_results = allocate_stage_tasks(stages[0]['tasks'][0:9])
+done_tasks = allocate_stage_tasks(stages[0]['tasks'][0:9])
 embed()
