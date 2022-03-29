@@ -117,69 +117,47 @@ pipeline:
               - from: read_csv_str_to_table
     - name: covid19-stage
       tasks:
-        - id: request-covid-api
-          name: "get covid api url"
+        - id: reques_covid_api
+          description: "get covid api url"
           type: read
           function: http-request
           inputs:
             # this use different user input type then the first task of webscrapping task 
             user_input:
-              type: dataframe
-              fields:
-                - name: covid19-url
-                  value: "https://covid19-japan-web-api.vercel.app/api/v1/total?history=true"
-          output:
-            type: str
-            format: json
-            description: "requested content"
+              file_name: 'input2.csv'
+              file_format: csv
+              # value: "https://covid19-japan-web-api.vercel.app/api/v1/total?history=true"
         # HOOK
-        - id: transform-json-to-dataframe
-          name: "turn json to dataframe"
-          type: read
+        - id: transform_json_to_dataframe
+          description: "turn json to dataframe"
+          type: transform
           function: transform-to-dataframe
           inputs:
             task_inputs:
-              - type: str
-                params:
-                  input_format: str
-                  str_type: json
-                from: request-covid-api
-          output:
-            type: dataframe
-            name: covid19_df
-        - id: calculate-covid-cases
-          name: "calculate positive cases & deaths by sql, also add a key for outer join"
-          type: transform
+              - str_type: json
+                from: request_covid_api
+        - id: calculate_covid_cases
+          description: "calculate positive cases & deaths by sql, also add a key for outer join"
+          type: filter
           function: sql
           inputs:
             user_input:
-              type: dataframe
-              fields:
-                - name: covid19-cases
-                  value: "
+              field: "
                     SELECT  (max(positive) - min(positive)) as positive, (max(death) - min(death)) as death, 1 as key
-                    FROM covid19_df
+                    FROM request_covid_api
                     WHERE date = '20211128' OR date = '20211228'
                   "
             task_inputs:
-              - type: dataframe
-                from: transform-json-to-dataframe
-            output:
-              type: dataframe
-              name: jp_covid30_df
-              description: "filtered jp covid19 dataframe ready to be joined"
+              - from: transform_json_to_dataframe
     - name: merged-stage
       tasks:
-        - id: combine-airbnb-covid-data
+        - id: combine_airbnb_covid_data
           name: "combined two data sources into a big dataframe"
           type: merge
           function: sql
           inputs:
             user_input:
-              type: dataframe
-              fields:
-                - name: airbnb_covid_combined
-                  value: "
+              field: "
                     SELECT
                       `id`, `listing_url`, `name`, `latitude`, `longitude`, `price`, `number_of_reviews`, 
                       `review_scores_rating`, `review_scores_accuracy`, `review_scores_cleanliness`, 
