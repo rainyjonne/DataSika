@@ -117,7 +117,7 @@ pipeline:
               - from: read_csv_str_to_table
     - name: covid19-stage
       tasks:
-        - id: reques_covid_api
+        - id: request_covid_api
           description: "get covid api url"
           type: read
           function: http-request
@@ -144,7 +144,7 @@ pipeline:
             user_input:
               field: "
                     SELECT  (max(positive) - min(positive)) as positive, (max(death) - min(death)) as death, 1 as key
-                    FROM request_covid_api
+                    FROM transform_json_to_dataframe
                     WHERE date = '20211128' OR date = '20211228'
                   "
             task_inputs:
@@ -152,7 +152,7 @@ pipeline:
     - name: merged-stage
       tasks:
         - id: combine_airbnb_covid_data
-          name: "combined two data sources into a big dataframe"
+          description: "combined two data sources into a big dataframe"
           type: merge
           function: sql
           inputs:
@@ -162,73 +162,47 @@ pipeline:
                       `id`, `listing_url`, `name`, `latitude`, `longitude`, `price`, `number_of_reviews`, 
                       `review_scores_rating`, `review_scores_accuracy`, `review_scores_cleanliness`, 
                       `review_scores_checkin`, `review_scores_communication`, `review_scores_location`, `review_scores_value`,
-                      jp_covid30_df.positive as jp_covid30_cases,  jp_covid30_df.death as jp_covid30_deaths, `unavailability_30`
-                    FROM airbnb_df
-                    LEFT OUTER JOIN  jp_covid30_df
-                      ON airbnb_df.key = jp_covid30_df.key
+                      calculate_covid_cases.positive as jp_covid30_cases,  calculate_covid_cases.death as jp_covid30_deaths, `unavailability_30`
+                    FROM filter_transform_listing
+                    LEFT OUTER JOIN  calculate_covid_cases
+                      ON filter_transform_listing.key = calculate_covid_cases.key
                   "
             task_inputs:
-              - type: dataframe
-                from: filter-transform-listing
-                description: "airbnb dataframe"
-              - type: dataframe
-                from: calculate-covid-cases
-                description: "jp covid19 dataframe"
-          outputs:
-            - type: dataframe
-              name: covid_added_df
-              description: "airbnb + covid19 dataframe merged"
-        - id: transform-price
-          name: "transform price"
-          type: transform
+              - from: filter_transform_listing
+              - from: calculate_covid_cases
+        - id: transform_price
+          description: "transform price"
+          type: filter
           function: sql
           inputs:
             user_input:
-              type: dataframe
-              fields:
-                - name: price_transformed
-                  value: "
+              field: "
                     SELECT `unavailability_30`, `latitude`, `longitude`,
                       CAST(REPLACE(REPLACE(REPLACE(price, '$', ''), '.00', ''), ',' ,'') AS INT) as price,
                       `number_of_reviews`, `review_scores_rating`, `review_scores_accuracy`, `review_scores_cleanliness`, 
                       `review_scores_checkin`, `review_scores_communication`, `review_scores_location`,
                       `review_scores_value`, `jp_covid30_cases`, `jp_covid30_deaths`
-                    FROM covid_added_df
+                    FROM combine_airbnb_covid_data
                   "
             task_inputs:
-              - type: dataframe
-                from: combine-airbnb-covid-data
-          outputs:
-            - type: dataframe
-              name: price_transformed_df
-              description: "price transformed dataframe"
-        - id: filter-nan-rows
+              - from: combine_airbnb_covid_data
+        - id: filter_nan_rows
           name: "filter NaN rows"
           type: filter
           function: sql
           inputs:
             user_input:
-              type: dataframe
-              fields:
-                - name: delete 
-                  value: true
-                - name: null_filtered
-                  value: "
-                    DELETE FROM price_transformed_df
-                    WHERE `unavailability_30` IS NULL OR `latitude` IS NULL OR `longitude` IS NULL OR
-                      `number_of_reviews` IS NULL OR `review_scores_rating` IS NULL OR `review_scores_accuracy` IS NULL OR 
-                      `review_scores_cleanliness` IS NULL OR `review_scores_checkin` IS NULL OR `review_scores_communication` IS NULL OR 
-                      `review_scores_location` IS NULL OR `review_scores_value` IS NULL OR  `jp_covid30_cases` IS NULL OR `jp_covid30_deaths` IS NULL OR
-                      `price` IS NULL;
+              field: "
+                    SELECT *
+                    FROM transform_price
+                    WHERE `unavailability_30` IS NOT NULL AND `latitude` IS NOT NULL AND `longitude` IS NOT NULL AND
+                      `number_of_reviews` IS NOT NULL AND `review_scores_rating` IS NOT NULL AND `review_scores_accuracy` IS NOT NULL AND 
+                      `review_scores_cleanliness` IS NOT NULL AND `review_scores_checkin` IS NOT NULL AND `review_scores_communication` IS NOT NULL AND 
+                      `review_scores_location` IS NOT NULL AND `review_scores_value` IS NOT NULL AND  `jp_covid30_cases` IS NOT NULL AND `jp_covid30_deaths` IS NOT NULL AND
+                      `price` IS NOT NULL;
                   "
             task_inputs:
-              - type: dataframe
-                from: transform-price
-          outputs:
-            - type: dataframe
-              name: final_df
-              description: "final output"
-          last_task: true
+              - from: transform_price
 
 
 

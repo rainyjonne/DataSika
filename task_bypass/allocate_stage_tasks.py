@@ -1,16 +1,15 @@
 # stage(tasks) function 
 from itertools import cycle
 from task_bypass.categorize_task import categorize_task
+from task_bypass.merge_tasks import merge_tasks
 
 #NEW
 # stage(tasks) function 
 from itertools import cycle
 
-def allocate_stage_tasks(tasks):
+def allocate_stage_tasks(tasks, done_tasks={}):
     tasks_cycle= cycle(tasks)
     # this is for testing
-    global done_tasks
-    done_tasks = {}
     # might be better way in the future
     # using a while loop to keep tracking if the tasks are done or not
     while(tasks):
@@ -35,10 +34,14 @@ def allocate_stage_tasks(tasks):
                     tasks.remove(task)
                     tasks_cycle= cycle(tasks)
                 else:
-                    continue
+                  continue
+                    
             else:
                 # do something for merging stage
-                continue
+                done_task = merge_tasks(task['id'], task_inputs, done_tasks, task['inputs']['user_input']['field'])
+                done_tasks.update(done_task)
+                tasks.remove(task)
+                tasks_cycle= cycle(tasks)
     #print("========================================")
     #print("tasks that have done:")
     #print("-----------------------------------------------------------------")
@@ -47,4 +50,4 @@ def allocate_stage_tasks(tasks):
     #print("the last output:")
     #print("-----------------------------------------------------------------")
     
-    return done_tasks
+    return done_task
