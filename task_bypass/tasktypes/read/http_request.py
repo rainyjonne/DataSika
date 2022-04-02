@@ -1,10 +1,19 @@
 # http request function
 import requests as reqs
+import pandas as pd
 
-def http_request(url, output_format):
+# input
+def http_request(url):
     response = reqs.get(url)
-    if output_format == "binary":
-        result = response.content
+    content_type = response.headers['Content-Type']
+    
+    ##REMINDER:
+    if 'application/x-gzip' in content_type:
+        # return bytes if the file hasn't been decompress yet
+        data = {"binary": response.content}
     else:
-        result = response
+        # otherwise return pure text
+        data = {"text": response.text}
+    
+    result = pd.DataFrame(data=data, index=[0])
     return result

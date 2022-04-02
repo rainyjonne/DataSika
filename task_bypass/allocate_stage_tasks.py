@@ -1,11 +1,15 @@
 # stage(tasks) function 
 from itertools import cycle
 from task_bypass.categorize_task import categorize_task
+from task_bypass.merge_tasks import merge_tasks
 
-def allocate_stage_tasks(tasks):
+#NEW
+# stage(tasks) function 
+from itertools import cycle
+
+def allocate_stage_tasks(tasks, done_tasks={}):
     tasks_cycle= cycle(tasks)
-    global done_tasks
-    done_tasks = {}
+    # this is for testing
     # might be better way in the future
     # using a while loop to keep tracking if the tasks are done or not
     while(tasks):
@@ -24,29 +28,26 @@ def allocate_stage_tasks(tasks):
             if len(task_inputs) == 1:
                 _from = task_inputs[0]['from']
                 if _from in done_tasks:
-                    _from_output = done_tasks[_from]['result']
-                    _output_name = done_tasks[_from]['name']
-                    # check the input matches the output of last task
-                    if task_inputs[0]['type'] == type(_from_output).__name__.lower():
-                        done_task = categorize_task(task, _from_output, _output_name)
-                        done_tasks.update(done_task)
-                        tasks.remove(task)
-                        tasks_cycle= cycle(tasks)
-                    else:
-                        print("output type not right")
-                        print("here are the tasks that have been done:")
-                        # return done_tasks
+                    _from_output = done_tasks[_from]
+                    done_task = categorize_task(task, _from_output, _from)
+                    done_tasks.update(done_task)
+                    tasks.remove(task)
+                    tasks_cycle= cycle(tasks)
                 else:
-                    continue
+                  continue
+                    
             else:
                 # do something for merging stage
-                continue
-    print("========================================")
-    print("tasks that have done:")
-    print("-----------------------------------------------------------------")
+                done_task = merge_tasks(task['id'], task_inputs, done_tasks, task['inputs']['user_input']['field'])
+                done_tasks.update(done_task)
+                tasks.remove(task)
+                tasks_cycle= cycle(tasks)
+    #print("========================================")
+    #print("tasks that have done:")
+    #print("-----------------------------------------------------------------")
     #print(done_tasks)
-    print("========================================")
-    print("the last output:")
-    print("-----------------------------------------------------------------")
+    #print("========================================")
+    #print("the last output:")
+    #print("-----------------------------------------------------------------")
     
     return done_task
