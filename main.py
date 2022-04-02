@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 
 from IPython import embed
+from task_bypass.run_stages import run_stages 
 import yaml
-from task_bypass.allocate_stage_tasks import allocate_stage_tasks
 
 with open("airbnb_pipeline.yaml", "r") as stream:
     process = yaml.safe_load(stream)
@@ -10,14 +10,8 @@ with open("airbnb_pipeline.yaml", "r") as stream:
 
 # get stages
 stages = process['pipeline']['stages']
+final_output = run_stages(stages)
 
-# test run
-# test here
-# each stage tasks can be output to a sqlite database
-airbnb_stage_tasks = allocate_stage_tasks(stages[0]['tasks'][0:9])
-covid_stage_tasks = allocate_stage_tasks(stages[1]['tasks'][0:3])
-airbnb_stage_tasks.update(covid_stage_tasks)
-merge_stage_tasks = allocate_stage_tasks(stages[2]['tasks'][0:3], airbnb_stage_tasks)
 embed()
 # show the results
-# merge_stage_tasks['filter_nan_rows']
+# final_output['filter_nan_rows']

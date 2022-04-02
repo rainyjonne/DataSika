@@ -152,7 +152,7 @@ pipeline:
     - id: merged_stage
       from:
           - airbnb_stage
-          - covid_stage 
+          - covid19_stage 
       tasks:
         - id: combine_airbnb_covid_data
           description: "combined two data sources into a big dataframe"
