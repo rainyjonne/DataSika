@@ -5,7 +5,7 @@ schedule:
 
 pipeline:
   stages:
-    - id: airbnb-stage
+    - id: airbnb_stage
       description: "stages for airbnb data"
       tasks:
         # id: <verb>
@@ -115,7 +115,7 @@ pipeline:
                     "
             task_inputs:
               - from: read_csv_str_to_table
-    - name: covid19-stage
+    - id: covid19_stage
       tasks:
         - id: request_covid_api
           description: "get covid api url"
@@ -149,7 +149,10 @@ pipeline:
                   "
             task_inputs:
               - from: transform_json_to_dataframe
-    - name: merged-stage
+    - id: merged_stage
+      from:
+          - airbnb_stage
+          - covid_stage 
       tasks:
         - id: combine_airbnb_covid_data
           description: "combined two data sources into a big dataframe"
