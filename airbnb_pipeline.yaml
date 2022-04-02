@@ -5,48 +5,38 @@ schedule:
 
 pipeline:
   stages:
-    - name: airbnb-stage
+    - id: airbnb-stage
+      description: "stages for airbnb data"
       tasks:
         # id: <verb>
         # user_input:
         #   fields:
         #     - name: <what you will get back after the syntax> <noun>
-        - id: webscrap-airbnb
-          name: "get airbnb website page url"
+        - id: webscrap_airbnb
+          description: "get airbnb website page url"
           type: read
           function: http-request
           inputs:
             user_input:
-              type: str
               file_name: 'input.csv'
               file_format: csv
-              one_field: true
-              field: url 
               # value: 'http://insideairbnb.com/get-the-data.html' (inside the csv file)
-          output:
-            type: list
-            format: binary
-        - id: extract-table-content
-          name: "get table content by xpath syntax"
+        - id: extract_table_content
+          description: "get table content by xpath syntax"
           type: filter
           function: xpath
           inputs:
             user_input:
-              type: str
-              value: '//table[@class="table table-hover table-striped tokyo"]//tr'
+              field: '//table[@class="table table-hover table-striped tokyo"]//tr'
             task_inputs:
-              - type: list
-                from: webscrap-airbnb
-          output:
-            type: list
-        - id: extract-row-content
-          name: "get row content by column names & xpath syntax"
+              - from: webscrap_airbnb
+        - id: extract_row_content
+          description: "get row content by column names & xpath syntax"
           type: filter
           function: xpath
           # use for loop to do things for each element(row)
           inputs:
             user_input:
-              type: dataframe 
               fields:
                 - name: time
                   value: './/td[1]/text()'
@@ -55,246 +45,164 @@ pipeline:
                 - name: file_link
                   value: './/td[3]//a/@href'
             task_inputs:
-              - type: list
-                from: extract-table-content
-          output:
-            type: dataframe
-            name: airbnb_df
-        - id: filter-date
-          name: "get date-filtered data by sql syntax"
+              - from: extract_table_content
+        - id: filter_date
+          description: "get date-filtered data by sql syntax"
           type: filter
           function: sql
           inputs:
             user_input:
-              type: str
-              value: "
+              field: "
                     SELECT `time`, `description`, `file_link`
-                    FROM airbnb_df
+                    FROM extract_row_content 
                     WHERE time = '28 December, 2021'
                   "
             task_inputs:
-              - type: dataframe
-                from: extract-row-content
-          output:
-            type: dataframe
-            name: filtered_df
-        - id: get-listing-file-link
-          name: "get file link by sql syntax"
+              - from: extract_row_content
+        - id: get_listing_file_link
+          description: "get file link by sql syntax"
           type: filter
           function: sql
           inputs:
             user_input:
-              type: str 
-              value: "
+              field: "
                     SELECT `file_link`
-                    FROM filtered_df
+                    FROM filter_date
                     WHERE description
                     LIKE '%listings data%'
                   "
             task_inputs:
-              - type: dataframe
-                from: filter-date
-          output:
-            type: dataframe
-            name: file_link_df
-        - id: request-listing-file
-          name: "request file link"
+              - from: filter_date
+        - id: request_listing_file
+          description: "request file link"
           type: read
           function: http-request
           inputs:
             task_inputs:
-              - type: dataframe
-                extract_field: file_link
-                from: get-listing-file-link
-          output:
-            type: bytes
-            format: binary
+              - extract_field: file_link
+                from: get_listing_file_link
         # HOOK
-        - id: decompress-file-str
-          name: "decompress file str"
+        - id: decompress_file_str
+          description: "decompress file str"
           type: transform
           function: decompress
           inputs:
             task_inputs:
-              - type: bytes
-                from: request-listing-file
-          output:
-            type: str
-            description: "decompressed csv strs"
-        - id: read-csv-str-to-table
-          name: "read csv str to dataframe"
+              - from: request_listing_file
+        - id: read_csv_str_to_table
+          description: "read csv str to dataframe"
           type: transform
           function: transform-to-dataframe
           inputs:
             task_inputs:
-              - type: str
-                params:
-                  input_format: str
-                  str_type: csv
-                from: decompress-file-str
-          output:
-            type: dataframe
-            name: listing_df
-        - id: filter-transform-listing
-          name: "filter & transform fields by sql syntax"
+              - str_type: csv
+                from: decompress_file_str
+        - id: filter_transform_listing
+          description: "filter & transform fields by sql syntax"
           type: filter
           function: sql
           inputs:
             user_input:
-              type: str
-              value: "
+              field: "
                     SELECT
                         `id`, `listing_url`, `name`, `latitude`, `longitude`, `price`, `number_of_reviews`, 
                         `review_scores_rating`, `review_scores_accuracy`, `review_scores_cleanliness`, 
                         `review_scores_checkin`, `review_scores_communication`, `review_scores_location`,
                         `review_scores_value`,  (30-availability_30) as unavailability_30, 1 as key
-                    FROM listing_df
+                    FROM read_csv_str_to_table
                     WHERE has_availability = 't' 
                        AND ((90-availability_90) != 90 OR (365-availability_365) != 365)
-                  "
+                    "
             task_inputs:
-              - type: dataframe
-                from: read-csv-str-to-table
-          output:
-            type: dataframe
-            name: airbnb_df
-            description: "filtered & transformed airbnb dataframe is ready to be joined"
+              - from: read_csv_str_to_table
     - name: covid19-stage
       tasks:
-        - id: request-covid-api
-          name: "get covid api url"
+        - id: request_covid_api
+          description: "get covid api url"
           type: read
           function: http-request
           inputs:
             # this use different user input type then the first task of webscrapping task 
             user_input:
-              type: dataframe
-              fields:
-                - name: covid19-url
-                  value: "https://covid19-japan-web-api.vercel.app/api/v1/total?history=true"
-          output:
-            type: str
-            format: json
-            description: "requested content"
+              file_name: 'input2.csv'
+              file_format: csv
+              # value: "https://covid19-japan-web-api.vercel.app/api/v1/total?history=true"
         # HOOK
-        - id: transform-json-to-dataframe
-          name: "turn json to dataframe"
-          type: read
+        - id: transform_json_to_dataframe
+          description: "turn json to dataframe"
+          type: transform
           function: transform-to-dataframe
           inputs:
             task_inputs:
-              - type: str
-                params:
-                  input_format: str
-                  str_type: json
-                from: request-covid-api
-          output:
-            type: dataframe
-            name: covid19_df
-        - id: calculate-covid-cases
-          name: "calculate positive cases & deaths by sql, also add a key for outer join"
-          type: transform
+              - str_type: json
+                from: request_covid_api
+        - id: calculate_covid_cases
+          description: "calculate positive cases & deaths by sql, also add a key for outer join"
+          type: filter
           function: sql
           inputs:
             user_input:
-              type: dataframe
-              fields:
-                - name: covid19-cases
-                  value: "
+              field: "
                     SELECT  (max(positive) - min(positive)) as positive, (max(death) - min(death)) as death, 1 as key
-                    FROM covid19_df
+                    FROM transform_json_to_dataframe
                     WHERE date = '20211128' OR date = '20211228'
                   "
             task_inputs:
-              - type: dataframe
-                from: transform-json-to-dataframe
-            output:
-              type: dataframe
-              name: jp_covid30_df
-              description: "filtered jp covid19 dataframe ready to be joined"
+              - from: transform_json_to_dataframe
     - name: merged-stage
       tasks:
-        - id: combine-airbnb-covid-data
-          name: "combined two data sources into a big dataframe"
+        - id: combine_airbnb_covid_data
+          description: "combined two data sources into a big dataframe"
           type: merge
           function: sql
           inputs:
             user_input:
-              type: dataframe
-              fields:
-                - name: airbnb_covid_combined
-                  value: "
+              field: "
                     SELECT
                       `id`, `listing_url`, `name`, `latitude`, `longitude`, `price`, `number_of_reviews`, 
                       `review_scores_rating`, `review_scores_accuracy`, `review_scores_cleanliness`, 
                       `review_scores_checkin`, `review_scores_communication`, `review_scores_location`, `review_scores_value`,
-                      jp_covid30_df.positive as jp_covid30_cases,  jp_covid30_df.death as jp_covid30_deaths, `unavailability_30`
-                    FROM airbnb_df
-                    LEFT OUTER JOIN  jp_covid30_df
-                      ON airbnb_df.key = jp_covid30_df.key
+                      calculate_covid_cases.positive as jp_covid30_cases,  calculate_covid_cases.death as jp_covid30_deaths, `unavailability_30`
+                    FROM filter_transform_listing
+                    LEFT OUTER JOIN  calculate_covid_cases
+                      ON filter_transform_listing.key = calculate_covid_cases.key
                   "
             task_inputs:
-              - type: dataframe
-                from: filter-transform-listing
-                description: "airbnb dataframe"
-              - type: dataframe
-                from: calculate-covid-cases
-                description: "jp covid19 dataframe"
-          outputs:
-            - type: dataframe
-              name: covid_added_df
-              description: "airbnb + covid19 dataframe merged"
-        - id: transform-price
-          name: "transform price"
-          type: transform
+              - from: filter_transform_listing
+              - from: calculate_covid_cases
+        - id: transform_price
+          description: "transform price"
+          type: filter
           function: sql
           inputs:
             user_input:
-              type: dataframe
-              fields:
-                - name: price_transformed
-                  value: "
+              field: "
                     SELECT `unavailability_30`, `latitude`, `longitude`,
                       CAST(REPLACE(REPLACE(REPLACE(price, '$', ''), '.00', ''), ',' ,'') AS INT) as price,
                       `number_of_reviews`, `review_scores_rating`, `review_scores_accuracy`, `review_scores_cleanliness`, 
                       `review_scores_checkin`, `review_scores_communication`, `review_scores_location`,
                       `review_scores_value`, `jp_covid30_cases`, `jp_covid30_deaths`
-                    FROM covid_added_df
+                    FROM combine_airbnb_covid_data
                   "
             task_inputs:
-              - type: dataframe
-                from: combine-airbnb-covid-data
-          outputs:
-            - type: dataframe
-              name: price_transformed_df
-              description: "price transformed dataframe"
-        - id: filter-nan-rows
+              - from: combine_airbnb_covid_data
+        - id: filter_nan_rows
           name: "filter NaN rows"
           type: filter
           function: sql
           inputs:
             user_input:
-              type: dataframe
-              fields:
-                - name: delete 
-                  value: true
-                - name: null_filtered
-                  value: "
-                    DELETE FROM price_transformed_df
-                    WHERE `unavailability_30` IS NULL OR `latitude` IS NULL OR `longitude` IS NULL OR
-                      `number_of_reviews` IS NULL OR `review_scores_rating` IS NULL OR `review_scores_accuracy` IS NULL OR 
-                      `review_scores_cleanliness` IS NULL OR `review_scores_checkin` IS NULL OR `review_scores_communication` IS NULL OR 
-                      `review_scores_location` IS NULL OR `review_scores_value` IS NULL OR  `jp_covid30_cases` IS NULL OR `jp_covid30_deaths` IS NULL OR
-                      `price` IS NULL;
+              field: "
+                    SELECT *
+                    FROM transform_price
+                    WHERE `unavailability_30` IS NOT NULL AND `latitude` IS NOT NULL AND `longitude` IS NOT NULL AND
+                      `number_of_reviews` IS NOT NULL AND `review_scores_rating` IS NOT NULL AND `review_scores_accuracy` IS NOT NULL AND 
+                      `review_scores_cleanliness` IS NOT NULL AND `review_scores_checkin` IS NOT NULL AND `review_scores_communication` IS NOT NULL AND 
+                      `review_scores_location` IS NOT NULL AND `review_scores_value` IS NOT NULL AND  `jp_covid30_cases` IS NOT NULL AND `jp_covid30_deaths` IS NOT NULL AND
+                      `price` IS NOT NULL;
                   "
             task_inputs:
-              - type: dataframe
-                from: transform-price
-          outputs:
-            - type: dataframe
-              name: final_df
-              description: "final output"
-          last_task: true
+              - from: transform_price
 
 
 
