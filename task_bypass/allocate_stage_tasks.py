@@ -2,7 +2,7 @@
 from itertools import cycle
 from task_bypass.categorize_task import categorize_task
 from task_bypass.merge_tasks import merge_tasks
-from helpers import task_length_sanity_check
+from task_bypass.helpers import task_length_sanity_check
 
 #NEW
 # stage(tasks) function 
