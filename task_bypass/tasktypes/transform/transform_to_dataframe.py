@@ -2,7 +2,7 @@ import pandas as pd
 import json
 from io import StringIO
 
-
+# input: string -> output: dataframe
 def transform_to_dataframe(input_string, str_type):
     result = pd.DataFrame()
 
