@@ -14,4 +14,4 @@ final_output = run_stages(stages)
 
 embed()
 # show the results
-# final_output['filter_nan_rows']
+# final_output['filter_nan_rows'][0]

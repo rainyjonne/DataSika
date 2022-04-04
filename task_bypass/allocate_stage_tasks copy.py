@@ -2,6 +2,7 @@
 from itertools import cycle
 from task_bypass.categorize_task import categorize_task
 from task_bypass.merge_tasks import merge_tasks
+from helpers import task_length_sanity_check
 
 #NEW
 # stage(tasks) function 
@@ -30,11 +31,13 @@ def allocate_stage_tasks(tasks, done_tasks={}):
                 if _from in done_tasks:
                     _from_output = done_tasks[_from]
                     done_task = categorize_task(task, _from_output, _from)
+                    # do sanity check
+                    task_length_sanity_check(_from_output, done_task)
                     done_tasks.update(done_task)
                     tasks.remove(task)
                     tasks_cycle= cycle(tasks)
                 else:
-                  continue
+                    continue
                     
             else:
                 # do something for merging stage

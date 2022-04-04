@@ -17,25 +17,32 @@ def read_content(task_id, inputs, _from_output = None):
                 rows = input_df[0]
                 ## NOTE
                 for row in rows:
-                    result_df = http_request(row)
-                    result = result_df[result_df.columns[0]][0]
-                    result_lists.append(result)
+                    # each of url df will produce a str df in return
+                    row_df = pd.DataFrame([row])
+                    result_df = http_request(row_df)
+                    # add dataframe into lists (produce list of dataframes)
+                    result_lists.append(result_df)
 
                 return {
-                    task_id: pd.DataFrame(result_lists)
+                    task_id: result_lists 
                 }
     
     if 'task_inputs' in inputs:
         task_inputs = inputs['task_inputs']
         if len(task_inputs) == 1:
             task_input = task_inputs[0]
-            if 'extract_field' in task_input and type(_from_output).__name__ == 'DataFrame':
-                extract_value = _from_output[task_input['extract_field']][0]
-                result_df = http_request(extract_value)
+            result_lists = []
+            for single_df in _from_output:
+                if 'extract_field' in task_input and type(single_df).__name__ == 'DataFrame':
+                    extract_df = pd.DataFrame([single_df[task_input['extract_field']][0]])
+                    # each of extract df will produce a df in return
+                    result_df = http_request(extract_df)
+                    # add dataframe into lists (produce list of dataframes)
+                    result_lists.append(result_df)
                 
-                return {
-                    task_id: result_df
-                }
+            return {
+                task_id: result_lists
+            }
                 
                 
                 
