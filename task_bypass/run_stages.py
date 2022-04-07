@@ -1,10 +1,13 @@
 # stages function
 from itertools import cycle
 from functools import reduce
+import sqlite3
 from task_bypass.allocate_stage_tasks import allocate_stage_tasks
 
 
 def run_stages(stages, done_stages={}):
+    # Create your db connection.
+    cnx = sqlite3.connect('airbnb-pipeline.db')
     stages_cycle = cycle(stages)
     # this is for testing
     # might be better way in the future (e.g. parallelisim)
@@ -20,6 +23,8 @@ def run_stages(stages, done_stages={}):
                 if None in unmerged_stages: unmerged_stages.remove(None)
                 from_tasks = reduce(lambda a, b: {**a, **b}, unmerged_stages)
                 done_stage = allocate_stage_tasks(stage['tasks'], from_tasks)
+                # save dataframe to sqlite db
+                list(done_stage.values())[0].to_sql(name=stage['id'], con=cnx)
                 # update the done stage list
                 done_stages.update({stage['id']: done_stage})
                 # remove done stage from waiting list
@@ -34,6 +39,8 @@ def run_stages(stages, done_stages={}):
         else:
             # update the done stage list
             done_stage = allocate_stage_tasks(stage['tasks'])
+            # save dataframe to sqlite db
+            list(done_stage.values())[0].to_sql(name=stage['id'], con=cnx)
             # update the done stage list
             done_stages.update({stage['id']: done_stage})
             # remove done stage from waiting list
