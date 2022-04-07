@@ -1,4 +1,6 @@
 import gzip
+import pandas as pd
+
 # input type: string, output type: string
 def decompress_content(comp_df):
     comp_str = comp_df[0][0]

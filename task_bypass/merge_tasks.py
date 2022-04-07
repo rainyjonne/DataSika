@@ -1,5 +1,5 @@
 from task_bypass.tasktypes.merge.sql_merge import sql_merge
-from helpers import merge_sanity_check
+from task_bypass.helpers import merge_sanity_check
 
 
 def merge_tasks(task_id, task_inputs, done_tasks, syntax):
