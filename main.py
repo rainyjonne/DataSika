@@ -10,7 +10,9 @@ with open("airbnb_pipeline.yaml", "r") as stream:
 
 # get stages
 stages = process['pipeline']['stages']
-final_output = run_stages(stages)
+#final_output = run_stages(stages)
+# for testing (since airbnb website has broken...)
+final_output = run_stages([stages[1]])
 
 embed()
 # show the results
