@@ -4,7 +4,7 @@ import pandas as pd
 
 def xpath(_from_output, value):
     if _from_output.columns[0] == 'binary':
-        bytes_str = _form_output['binary']
+        bytes_str = _from_output['binary']
     # default is pure text   
     elif _from_output.columns[0] == 'text' :
         output_str = _from_output['text'][0]

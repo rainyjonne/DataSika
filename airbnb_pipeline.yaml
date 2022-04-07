@@ -115,6 +115,13 @@ pipeline:
                     "
             task_inputs:
               - from: read_csv_str_to_table
+        - id: concat_airbnb_dataframes
+          description: "concat list of airbnb dataframes together"
+          type: concat
+          function: sql
+          inputs:
+            task_inputs:
+              - from: filter_transform_listing
     - id: covid19_stage
       tasks:
         - id: request_covid_api
@@ -149,6 +156,13 @@ pipeline:
                   "
             task_inputs:
               - from: transform_json_to_dataframe
+        - id: concat_covid_dataframes
+          description: "concat list of covid dataframes together"
+          type: concat
+          function: sql
+          inputs:
+            task_inputs:
+              - from: calculate_covid_cases
     - id: merged_stage
       from:
           - airbnb_stage
@@ -171,8 +185,8 @@ pipeline:
                       ON filter_transform_listing.key = calculate_covid_cases.key
                   "
             task_inputs:
-              - from: filter_transform_listing
-              - from: calculate_covid_cases
+              - from: concat_airbnb_dataframes
+              - from: concat_covid_dataframes
         - id: transform_price
           description: "transform price"
           type: filter
@@ -206,14 +220,12 @@ pipeline:
                   "
             task_inputs:
               - from: transform_price
-
-
-
-
-
-
+        - id: concat_final_dataframes
+          description: "concat list of final dataframes together"
+          type: concat
+          function: sql
+          inputs:
+            task_inputs:
+              - from: filter_nan_rows 
+        
           
-
-
-
-
