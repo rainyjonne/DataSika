@@ -5,18 +5,23 @@ import pandas as pd
 from task_bypass.tasktypes.filter.xpath import xpath
 from task_bypass.tasktypes.filter.sql import sql
 
-
 def filter_content(task_id, inputs,  function, _from_output, _last_output_name):
+    # presetting
     user_input = inputs['user_input']
+    task_input = inputs['task_inputs'][0]
+    extract_field = None
+    if 'extract_field' in task_input:
+        extract_field = task_input['extract_field']
+
 
     # only one field value
     if "field" in user_input:
-        pattern = user_input['field']
+        syntax = user_input['field']
         if function == "xpath":
             result_lists = []
             for single_df in _from_output:
                 # each of dataframe from last task will produce a dataframe in return
-                result_df = xpath(single_df, pattern)
+                result_df = xpath(single_df, syntax, extract_field)
                 # add to list of dataframes
                 result_lists.append(result_df)
             return {
@@ -26,7 +31,7 @@ def filter_content(task_id, inputs,  function, _from_output, _last_output_name):
             result_lists = []
             for single_df in _from_output:
                 # each of dataframe from last task will produce a dataframe in return
-                filtered_df = sql(_last_output_name, single_df, pattern)
+                filtered_df = sql(_last_output_name, single_df, syntax)
                 # add to list of dataframes
                 result_lists.append(filtered_df)
             
@@ -34,6 +39,19 @@ def filter_content(task_id, inputs,  function, _from_output, _last_output_name):
                 task_id: result_lists
             }
     
+        if function == "json-path":
+            result_lists = []
+            for single_df in _from_output:
+                if 'extract_field' in task_input:
+                    extract_field = task_input['extract_field']
+                # each of dataframe from last task will produce a dataframe in return
+                filtered_df = json_path(single_df, syntax, extract_field, True)
+                # add to list of dataframes
+                result_lists.append(filtered_df)
+            
+            return {
+                task_id: result_lists
+            }    
   
         
     # fields for making a dataframe 
@@ -42,8 +60,8 @@ def filter_content(task_id, inputs,  function, _from_output, _last_output_name):
         columns = [field['name'] for field in fields]
         values = [[field['value'] for field in fields]]
         input_df = pd.DataFrame(values, columns=columns)
-
-       
+   
+    
         if function == "xpath":
             final_result_lists = []
             for single_df in _from_output:

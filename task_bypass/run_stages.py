@@ -5,9 +5,12 @@ import sqlite3
 from task_bypass.allocate_stage_tasks import allocate_stage_tasks
 
 
-def run_stages(stages, done_stages={}):
+def run_stages(stages, pipeline_name, done_stages={}):
     # Create your db connection.
-    cnx = sqlite3.connect('airbnb-pipeline.db')
+    cnx = sqlite3.connect(f'{pipeline_name}.db')
+    stage_names = [ stage['id'] for stage in stages ]
+    for stage_name in stage_names:
+        cnx.execute(f"DROP TABLE IF EXISTS {stage_name}")
     stages_cycle = cycle(stages)
     # this is for testing
     # might be better way in the future (e.g. parallelisim)
@@ -24,26 +27,29 @@ def run_stages(stages, done_stages={}):
                 from_tasks = reduce(lambda a, b: {**a, **b}, unmerged_stages)
                 done_stage = allocate_stage_tasks(stage['tasks'], from_tasks)
                 # save dataframe to sqlite db
-                list(done_stage.values())[0].to_sql(name=stage['id'], con=cnx)
+                list(done_stage.values())[0][0].to_sql(name=stage['id'], con=cnx)
                 # update the done stage list
                 done_stages.update({stage['id']: done_stage})
-                # remove done stage from waiting list
                 stages.remove(stage)
                 stages_cycle = cycle(stages)
 
-            # if user wants to cut task into smaller stages
+            # if user wants to cut tasks into smaller stages
             # need to add more codes to here in the future
             else:
-                continue
-
+                upstream_stage_id = upstream_stages[0]
+                from_tasks =done_stages[upstream_stage_id] 
+                done_stage = allocate_stage_tasks(stage['tasks'], from_tasks)
+                # save dataframe to sqlite db
+                list(done_stage.values())[0][0].to_sql(name=stage['id'], con=cnx)
+                done_stages.update({stage['id']: done_stage})
+                stages.remove(stage)
+                stages_cycle = cycle(stages)
         else:
             # update the done stage list
             done_stage = allocate_stage_tasks(stage['tasks'])
             # save dataframe to sqlite db
-            list(done_stage.values())[0].to_sql(name=stage['id'], con=cnx)
-            # update the done stage list
+            list(done_stage.values())[0][0].to_sql(name=stage['id'], con=cnx)
             done_stages.update({stage['id']: done_stage})
-            # remove done stage from waiting list
             stages.remove(stage)
             stages_cycle = cycle(stages)
 

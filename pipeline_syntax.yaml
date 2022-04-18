@@ -21,66 +21,31 @@ pipeline:
               file_name: 'input.csv'
               file_format: csv
               # value: 'http://insideairbnb.com/get-the-data.html' (inside the csv file)
-        - id: extract_table_content
-          description: "get table content by xpath syntax"
+        - id: extract_content
+          description: "get file links by xpath syntax"
           type: filter
           function: xpath
           inputs:
             user_input:
-              field: '//table[@class="table table-hover table-striped tokyo"]//tr'
+              field: "//a[contains(@href, 'listings.csv.gz')][contains(@href, 'http')][contains(@href, 'united-kingdom')]/@href"
             task_inputs:
               - from: webscrap_airbnb
-        - id: extract_row_content
-          description: "get row content by column names & xpath syntax"
-          type: filter
-          function: xpath
-          # use for loop to do things for each element(row)
+        # transform a dataframe into several dataframes
+        - id: create_city_dataframes
+          description: "put different city data into different dataframes"
+          type: transform
+          # may need better naming for function name
+          function: split_dataframe_rows
           inputs:
-            user_input:
-              fields:
-                - name: time
-                  value: './/td[1]/text()'
-                - name: description
-                  value: './/td[4]/text()'
-                - name: file_link
-                  value: './/td[3]//a/@href'
             task_inputs:
-              - from: extract_table_content
-        - id: filter_date
-          description: "get date-filtered data by sql syntax"
-          type: filter
-          function: sql
-          inputs:
-            user_input:
-              field: "
-                    SELECT `time`, `description`, `file_link`
-                    FROM extract_row_content 
-                    WHERE time = '28 December, 2021'
-                  "
-            task_inputs:
-              - from: extract_row_content
-        - id: get_listing_file_link
-          description: "get file link by sql syntax"
-          type: filter
-          function: sql
-          inputs:
-            user_input:
-              field: "
-                    SELECT `file_link`
-                    FROM filter_date
-                    WHERE description
-                    LIKE '%listings data%'
-                  "
-            task_inputs:
-              - from: filter_date
+              - from: extract_content
         - id: request_listing_file
           description: "request file link"
           type: read
           function: http-request
           inputs:
             task_inputs:
-              - extract_field: file_link
-                from: get_listing_file_link
+              - from: create_city_dataframes
         # HOOK
         - id: decompress_file_str
           description: "decompress file str"
@@ -105,7 +70,7 @@ pipeline:
             user_input:
               field: "
                     SELECT
-                        `id`, `listing_url`, `name`, `latitude`, `longitude`, `price`, `number_of_reviews`, 
+                        `id`, `listing_url`, `host_location`, `name`, `latitude`, `longitude`, `price`, `number_of_reviews`, 
                         `review_scores_rating`, `review_scores_accuracy`, `review_scores_cleanliness`, 
                         `review_scores_checkin`, `review_scores_communication`, `review_scores_location`,
                         `review_scores_value`,  (30-availability_30) as unavailability_30, 1 as key
@@ -118,57 +83,67 @@ pipeline:
         - id: concat_airbnb_dataframes
           description: "concat list of airbnb dataframes together"
           type: concat
-          function: sql
+          function: concat
           inputs:
             task_inputs:
               - from: filter_transform_listing
-    - id: covid19_stage
+    - id: crime_stage
+      from:
+        - airbnb_stage
       tasks:
-        - id: request_covid_api
-          description: "get covid api url"
+        - id: request_uk_crime_data
+          description: "mapping request params"
           type: read
-          function: http-request
+          function: http-request-dynamic
           inputs:
-            # this use different user input type then the first task of webscrapping task 
             user_input:
-              file_name: 'input2.csv'
-              file_format: csv
-              # value: "https://covid19-japan-web-api.vercel.app/api/v1/total?history=true"
-        # HOOK
-        - id: transform_json_to_dataframe
-          description: "turn json to dataframe"
+              base_url: "https://data.police.uk/api/crimes-street/all-crime"
+              params_dynamic:
+                # mapping maps task_inputs' output dataframe
+                - name: lat
+                  value: latitude
+                - name: lng
+                  value: longitude
+              params_fixed:
+                - name: date
+                  value: '2021-11'
+            task_inputs:
+              - from: concat_airbnb_dataframes
+        # wanna discuss with these two tasks
+        - id: getting_crime_numbers
+          description: "get crime statistic data"
           type: transform
-          function: transform-to-dataframe
+          function: get-length
           inputs:
             task_inputs:
-              - str_type: json
-                from: request_covid_api
-        - id: calculate_covid_cases
-          description: "calculate positive cases & deaths by sql, also add a key for outer join"
-          type: filter
-          function: sql
+              - from: request_uk_crime_data
+                str_type: json
+                extract_field: text
+                # now only design that transform has preserve origin data column
+                preserve_origin_data: True
+        - id: rename_crime_columns
+          description: "renamed text column into crime_incidents"
+          type: transform
+          function: rename-columns
           inputs:
             user_input:
-              field: "
-                    SELECT  (max(positive) - min(positive)) as positive, (max(death) - min(death)) as death, 1 as key
-                    FROM transform_json_to_dataframe
-                    WHERE date = '20211128' OR date = '20211228'
-                  "
+              fields: 
+                - text: crime_incidents
             task_inputs:
-              - from: transform_json_to_dataframe
-        - id: concat_covid_dataframes
-          description: "concat list of covid dataframes together"
+              - from: getting_crime_numbers
+        - id: concat_crime_dataframes
+          description: "concat list of crime dataframes together"
           type: concat
-          function: sql
+          function: concat
           inputs:
             task_inputs:
-              - from: calculate_covid_cases
+              - from: rename_crime_columns
     - id: merged_stage
       from:
           - airbnb_stage
-          - covid19_stage 
+          - crime_stage 
       tasks:
-        - id: combine_airbnb_covid_data
+        - id: combine_airbnb_crime_data
           description: "combined two data sources into a big dataframe"
           type: merge
           function: sql
@@ -176,17 +151,22 @@ pipeline:
             user_input:
               field: "
                     SELECT
-                      `id`, `listing_url`, `name`, `latitude`, `longitude`, `price`, `number_of_reviews`, 
+                      `id`, `listing_url`, `name`, concat_airbnb_dataframes.latitude as `latitude`,
+                      concat_airbnb_dataframes.longitude as `longitude`, `price`, `number_of_reviews`, 
                       `review_scores_rating`, `review_scores_accuracy`, `review_scores_cleanliness`, 
                       `review_scores_checkin`, `review_scores_communication`, `review_scores_location`, `review_scores_value`,
-                      calculate_covid_cases.positive as jp_covid30_cases,  calculate_covid_cases.death as jp_covid30_deaths, `unavailability_30`
-                    FROM filter_transform_listing
-                    LEFT OUTER JOIN  calculate_covid_cases
-                      ON filter_transform_listing.key = calculate_covid_cases.key
+                      `crime_incidents`, `unavailability_30`
+                    FROM concat_airbnb_dataframes
+                    INNER JOIN  concat_crime_dataframes
+                      ON (
+                        concat_airbnb_dataframes.latitude = concat_crime_dataframes.latitude
+                        AND
+                        concat_airbnb_dataframes.longitude = concat_crime_dataframes.longitude
+                      )
                   "
             task_inputs:
               - from: concat_airbnb_dataframes
-              - from: concat_covid_dataframes
+              - from: concat_crime_dataframes
         - id: transform_price
           description: "transform price"
           type: filter
@@ -198,11 +178,11 @@ pipeline:
                       CAST(REPLACE(REPLACE(REPLACE(price, '$', ''), '.00', ''), ',' ,'') AS INT) as price,
                       `number_of_reviews`, `review_scores_rating`, `review_scores_accuracy`, `review_scores_cleanliness`, 
                       `review_scores_checkin`, `review_scores_communication`, `review_scores_location`,
-                      `review_scores_value`, `jp_covid30_cases`, `jp_covid30_deaths`
-                    FROM combine_airbnb_covid_data
+                      `review_scores_value`, `crime_incidents`
+                    FROM combine_airbnb_crime_data
                   "
             task_inputs:
-              - from: combine_airbnb_covid_data
+              - from: combine_airbnb_crime_data
         - id: filter_nan_rows
           name: "filter NaN rows"
           type: filter
@@ -215,7 +195,7 @@ pipeline:
                     WHERE `unavailability_30` IS NOT NULL AND `latitude` IS NOT NULL AND `longitude` IS NOT NULL AND
                       `number_of_reviews` IS NOT NULL AND `review_scores_rating` IS NOT NULL AND `review_scores_accuracy` IS NOT NULL AND 
                       `review_scores_cleanliness` IS NOT NULL AND `review_scores_checkin` IS NOT NULL AND `review_scores_communication` IS NOT NULL AND 
-                      `review_scores_location` IS NOT NULL AND `review_scores_value` IS NOT NULL AND  `jp_covid30_cases` IS NOT NULL AND `jp_covid30_deaths` IS NOT NULL AND
+                      `review_scores_location` IS NOT NULL AND `review_scores_value` IS NOT NULL AND  `crime_incidents` IS NOT NULL AND
                       `price` IS NOT NULL;
                   "
             task_inputs:
