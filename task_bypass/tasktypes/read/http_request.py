@@ -5,8 +5,6 @@ import json
 
 # input: dataframe -> output: dataframe
 def http_request(url_df, extract_field = None, preserve_origin_data = False):
-    # for testing
-    url_df = url_df[0:10]
     
     if extract_field:
         rows = url_df[extract_field]
