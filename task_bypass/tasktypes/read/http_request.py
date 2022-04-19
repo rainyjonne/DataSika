@@ -1,11 +1,16 @@
 # http request function
 import requests as reqs
 import pandas as pd
+import numpy as np
 import json
 
 # input: dataframe -> output: dataframe
 def http_request(url_df, extract_field = None, preserve_origin_data = False):
-    
+
+    # for test
+    if len(url_df.index) > 1000:
+        url_df = url_df.sample(n=2000)
+
     if extract_field:
         rows = url_df[extract_field]
     else:
@@ -50,12 +55,16 @@ def http_request_dynamic(params_df, preserve_fields = None, mapping_fields = Non
     preserve_origin_data = False
     # add question mark if not provided
     if base_url[-1] != "?":
-        base_url = f"{base_url}?"
+        params_df['base_url'] = f"{base_url}?"
 
-    for column in list(params_df.columns):
-        if column == "headers" or column == "base_url":
-            break
-        base_url = f"{base_url}&{column}={params_df[column][0]}"
+    columns = list(params_df.columns)
+    # remove headers & base url column
+    if 'headers' in columns:
+        columns.remove("headers")
+    columns.remove("base_url")
+
+    for column in columns:
+        params_df['base_url'] = params_df['base_url'].map(str) + f"&{column}=" + params_df[column].map(str)
 
     if preserve_fields:
         request_df = params_df[preserve_fields]
@@ -64,7 +73,7 @@ def http_request_dynamic(params_df, preserve_fields = None, mapping_fields = Non
     if mapping_fields:
         request_df = request_df.rename(columns=mapping_fields)
 
-    request_df['base_url'] = base_url
+    request_df['base_url'] = params_df['base_url']
 
     if "headers" in list(params_df.columns):
         request_df['headers'] = params_df['headers']

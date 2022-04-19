@@ -7,6 +7,7 @@ from task_bypass.helpers import task_length_sanity_check, concat_task_length_san
 #NEW
 # stage(tasks) function 
 from itertools import cycle
+from IPython import embed
 
 def allocate_stage_tasks(tasks, done_tasks={}):
     tasks_cycle= cycle(tasks)
@@ -15,6 +16,7 @@ def allocate_stage_tasks(tasks, done_tasks={}):
     # using a while loop to keep tracking if the tasks are done or not
     while(tasks):
         task = next(tasks_cycle)
+        print(f"{task['id']} task starts!")
         # check if it's the first task
         if 'task_inputs' not in task['inputs']:
             done_task = categorize_task(task)
@@ -51,6 +53,7 @@ def allocate_stage_tasks(tasks, done_tasks={}):
                 done_tasks.update(done_task)
                 tasks.remove(task)
                 tasks_cycle= cycle(tasks)
+        print(f"{task['id']} task has done!")
     #print("========================================")
     #print("tasks that have done:")
     #print("-----------------------------------------------------------------")

@@ -20,7 +20,7 @@ pipeline:
             user_input:
               file_name: 'input.csv'
               file_format: csv
-              # value: 'http://insideairbnb.com/get-the-data.html' (inside the csv file)
+              # value: 'http://insideairbnb.com/get-thedata.html' (inside the csv file)
         - id: extract_content
           description: "get file links by xpath syntax"
           type: filter
@@ -80,13 +80,29 @@ pipeline:
                     "
             task_inputs:
               - from: read_csv_str_to_table
+        - id: filter_nan_rows
+          name: "filter NaN rows"
+          type: filter
+          function: sql
+          inputs:
+            user_input:
+              field: "
+                    SELECT *
+                    FROM filter_transform_listing
+                    WHERE `unavailability_30` IS NOT NULL AND `latitude` IS NOT NULL AND `longitude` IS NOT NULL AND
+                      `number_of_reviews` IS NOT NULL AND `review_scores_rating` IS NOT NULL AND `review_scores_accuracy` IS NOT NULL AND 
+                      `review_scores_cleanliness` IS NOT NULL AND `review_scores_checkin` IS NOT NULL AND `review_scores_communication` IS NOT NULL AND 
+                      `review_scores_location` IS NOT NULL AND `review_scores_value` IS NOT NULL AND `price` IS NOT NULL;
+                  "
+            task_inputs:
+              - from: filter_transform_listing
         - id: concat_airbnb_dataframes
           description: "concat list of airbnb dataframes together"
           type: concat
           function: concat
           inputs:
             task_inputs:
-              - from: filter_transform_listing
+              - from: filter_nan_rows
     - id: crime_stage
       from:
         - airbnb_stage
@@ -151,7 +167,7 @@ pipeline:
             user_input:
               field: "
                     SELECT
-                      `id`, `listing_url`, `name`, concat_airbnb_dataframes.latitude as `latitude`,
+                      `id`, `listing_url`, `name`, `host_location`, concat_airbnb_dataframes.latitude as `latitude`,
                       concat_airbnb_dataframes.longitude as `longitude`, `price`, `number_of_reviews`, 
                       `review_scores_rating`, `review_scores_accuracy`, `review_scores_cleanliness`, 
                       `review_scores_checkin`, `review_scores_communication`, `review_scores_location`, `review_scores_value`,
@@ -174,7 +190,7 @@ pipeline:
           inputs:
             user_input:
               field: "
-                    SELECT `unavailability_30`, `latitude`, `longitude`,
+                    SELECT `id`, `listing_url`, `host_location`, `name`, `unavailability_30`, `latitude`, `longitude`,
                       CAST(REPLACE(REPLACE(REPLACE(price, '$', ''), '.00', ''), ',' ,'') AS INT) as price,
                       `number_of_reviews`, `review_scores_rating`, `review_scores_accuracy`, `review_scores_cleanliness`, 
                       `review_scores_checkin`, `review_scores_communication`, `review_scores_location`,
@@ -183,29 +199,13 @@ pipeline:
                   "
             task_inputs:
               - from: combine_airbnb_crime_data
-        - id: filter_nan_rows
-          name: "filter NaN rows"
-          type: filter
-          function: sql
-          inputs:
-            user_input:
-              field: "
-                    SELECT *
-                    FROM transform_price
-                    WHERE `unavailability_30` IS NOT NULL AND `latitude` IS NOT NULL AND `longitude` IS NOT NULL AND
-                      `number_of_reviews` IS NOT NULL AND `review_scores_rating` IS NOT NULL AND `review_scores_accuracy` IS NOT NULL AND 
-                      `review_scores_cleanliness` IS NOT NULL AND `review_scores_checkin` IS NOT NULL AND `review_scores_communication` IS NOT NULL AND 
-                      `review_scores_location` IS NOT NULL AND `review_scores_value` IS NOT NULL AND  `crime_incidents` IS NOT NULL AND
-                      `price` IS NOT NULL;
-                  "
-            task_inputs:
-              - from: transform_price
         - id: concat_final_dataframes
           description: "concat list of final dataframes together"
           type: concat
-          function: sql
+          function: concat
           inputs:
             task_inputs:
-              - from: filter_nan_rows 
+              - from: transform_price  
+
         
           
