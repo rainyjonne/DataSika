@@ -23,7 +23,7 @@ def transform_content(task_id, inputs, function, _from_output):
     if 'preserve_origin_data' in task_input:
         preserve_origin_data = task_input['preserve_origin_data']
 
-    if function == "split_dataframe_rows":
+    if function == "split-dataframe-rows":
         result_lists = []
         for single_df in _from_output:
             split_df_rows = split_dataframe_rows(single_df, task_id)

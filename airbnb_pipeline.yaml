@@ -35,7 +35,7 @@ pipeline:
           description: "put different city data into different dataframes"
           type: transform
           # may need better naming for function name
-          function: split_dataframe_rows
+          function: split-dataframe-rows
           inputs:
             task_inputs:
               - from: extract_content
