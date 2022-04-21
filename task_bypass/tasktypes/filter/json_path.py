@@ -1,4 +1,5 @@
-from jsonpath import jsonpath
+import jsonpath2 as jp2
+from jsonpath2.path import Path
 import json
 
 def json_path(df, syntax, extract_field = None):
@@ -12,8 +13,9 @@ def json_path(df, syntax, extract_field = None):
     result_lists = []
     for row in rows:
         json_strs = json.loads(row)
-        result = json.dumps(jsonpath(json_strs, syntax)[0])
-        result_lists.append(result)
+        p = Path.parse_str(syntax)
+        ret = [m.current_value for m in p.match(json_strs)]
+        result_lists.append(ret[0])
         
     df[column_name] = result_lists
 
