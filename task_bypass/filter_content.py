@@ -4,6 +4,7 @@
 import pandas as pd 
 from task_bypass.tasktypes.filter.xpath import xpath
 from task_bypass.tasktypes.filter.sql import sql
+from task_bypass.tasktypes.filter.json_path import json_path
 
 def filter_content(task_id, inputs,  function, _from_output, _last_output_name):
     # presetting
@@ -45,7 +46,7 @@ def filter_content(task_id, inputs,  function, _from_output, _last_output_name):
                 if 'extract_field' in task_input:
                     extract_field = task_input['extract_field']
                 # each of dataframe from last task will produce a dataframe in return
-                filtered_df = json_path(single_df, syntax, extract_field, True)
+                filtered_df = json_path(single_df, syntax, extract_field)
                 # add to list of dataframes
                 result_lists.append(filtered_df)
             

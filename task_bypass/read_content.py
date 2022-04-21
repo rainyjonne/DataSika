@@ -4,7 +4,7 @@
 import pandas as pd
 from task_bypass.tasktypes.read.http_request import http_request, http_request_dynamic
 
-def read_content(task_id, inputs, function, _from_output = None):
+def read_content(db, stage_name, task_id, inputs, function, _from_output = None):
     # for now all the read_content will do http_request related jobs
 
     result_lists = []
@@ -27,7 +27,7 @@ def read_content(task_id, inputs, function, _from_output = None):
                 for row in rows:
                     # each of url df will produce a str df in return
                     row_df = pd.DataFrame([row])
-                    result_df = http_request(row_df)
+                    result_df = http_request(db, stage_name, task_id, row_df)
                     # add dataframe into lists (produce list of dataframes)
                     result_lists.append(result_df)
 
@@ -46,12 +46,12 @@ def read_content(task_id, inputs, function, _from_output = None):
             for single_df in _from_output:
                 if extract_field:
                     # each of single df will produce a df in return
-                    result_df = http_request(single_df, extract_field)
+                    result_df = http_request(db, stage_name, task_id, single_df, extract_field)
 
                 # no specific extract field
                 else:
                     # each of extract df will produce a df in return
-                    result_df = http_request(single_df)
+                    result_df = http_request(db, stage_name, task_id, single_df)
 
                 # add dataframe into lists (produce list of dataframes)
                 result_lists.append(result_df)
@@ -88,7 +88,7 @@ def read_content(task_id, inputs, function, _from_output = None):
                 if 'headers' in user_input:
                     params_df['headers'] = json.dumps(user_input['headers'])
 
-                result_df = http_request_dynamic(params_df, preserve_fields, mapping_fields)
+                result_df = http_request_dynamic(db, stage_name, task_id, params_df, preserve_fields, mapping_fields)
 
                 result_lists.append(result_df)
 
