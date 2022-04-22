@@ -22,18 +22,23 @@ def http_request(db, stage_name, task_id, url_df, extract_field = None, preserve
     response_list = []
         
     headers = None
+    date_time_list = []
+    status_code_list = []
     for url in rows:
         if "headers" in url_df.columns:
             # presume every row has same headers setting
             headers= json.loads(url_df['headers'][0])
         date_time = str(datetime.now())
+        date_time_list.append(date_time)
         response = reqs.get(url, headers=headers)
-       
-        if response.status_code >= 400:
+        
+        status_code = response.status_code
+        status_code_list.append(status_code)
+        if status_code >= 400:
             level = "ERROR"
         else:
             level = "INFO"
-        error_mesg = f"{response.status_code}: {response.text}"
+        error_mesg = f"{status_code}: {response.text}"
 
 
         table_values = f""" 
@@ -57,12 +62,17 @@ def http_request(db, stage_name, task_id, url_df, extract_field = None, preserve
             # otherwise return pure text
             category = "text"
             response_list.append(response.text)
+
+    # adding basic information for calling api
+    url_df['update_time'] = date_time_list 
+    url_df['status_code'] = status_code_list 
         
     if preserve_origin_data:
         url_df[category] = response_list
     else:
         url_df = pd.DataFrame()
         url_df[category] = response_list
+
     
     return url_df
 
@@ -116,3 +126,5 @@ def http_request_dynamic(db, stage_name, task_id, params_df, preserve_fields = N
     result_df = http_request(db, stage_name, task_id, request_df, 'base_url', preserve_origin_data)
 
     return result_df
+
+

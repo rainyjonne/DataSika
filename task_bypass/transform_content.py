@@ -11,6 +11,7 @@ from task_bypass.tasktypes.transform.rename_columns import rename_columns
 from task_bypass.tasktypes.transform.get_length import get_length 
 from task_bypass.tasktypes.transform.split_dataframe_rows import split_dataframe_rows 
 from task_bypass.tasktypes.transform.flatten_lists_to_dataframe import flatten_lists_to_dataframe 
+from task_bypass.tasktypes.transform.api_format_replacement import api_format_replacement 
 
 def transform_content(task_id, inputs, function, _from_output):
     # presetting
@@ -100,6 +101,31 @@ def transform_content(task_id, inputs, function, _from_output):
         result_lists = []
         for single_df in _from_output:
             result_df = flatten_lists_to_dataframe(single_df, extract_field, preserve_origin_data)
+            result_lists.append(result_df)
+
+        return {
+            task_id: result_lists
+        }
+
+    if  function == "api-format-replacement":
+        user_input = inputs['user_input']
+        base_url = user_input['base_url']
+        url_df = pd.DataFrame()
+
+        mapping_items = None
+        if 'url_dynamic' in user_input:
+            mapping_items = user_input['url_dynamic']
+
+        mapping_fields = {}
+        result_lists = []
+        for single_df in _from_output:
+            for item in mapping_items:
+                replacing_nums = len(single_df[item['value']])
+                url_df = url_df.append([base_url]*replacing_nums, ignore_index=True)
+                url_df[item['name']] = list(single_df[item['value']])
+                mapping_fields[item['name']] = item['value']
+                
+            result_df = api_format_replacement(url_df)
             result_lists.append(result_df)
 
         return {
