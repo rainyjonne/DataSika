@@ -35,7 +35,7 @@ def allocate_stage_tasks(stage_name, tasks, db, done_tasks={}):
                     done_task = categorize_task(db, stage_name, task, _from_output, _from)
                     # do sanity check
                     #NOTE: split & concat function has its own sanity check
-                    if task['function'] == 'split_dataframe_rows':
+                    if task['function'] == 'split-dataframe-rows':
                         pass
                     elif task['function'] == 'concat':
                         concat_task_length_sanity_check(done_task, task['id'])
