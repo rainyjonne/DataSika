@@ -1,0 +1,54 @@
+name: repo-miner 
+schedule:
+  # every month's first day
+  - cron: "0 0 1 * *"
+
+
+pipeline:
+  stages:
+    - id: get_gems_stage
+      description: "stages for get basic gem infos"
+      tasks:
+        # id: <verb>
+        # user_input:
+        #   fields:
+        #     - name: <what you will get back after the syntax> <noun>
+        - id: get_gem_basic_infos  
+          description: "get basic infos for all gems"
+          type: read
+          function: http-request-dynamic
+          inputs:
+            user_input:
+              base_url: "https://rubygems.org/api/v1/search.json"
+              pagination:
+                name: page
+                start: 1
+                end: 2 
+              params_fixed:
+                - name: query
+                  value: main
+        - id: filter_gem_names
+          description: "using jsonpath to filter out gem names"
+          type: filter
+          function: json-path 
+          inputs:
+            user_input:
+              field: '$..name' 
+            task_inputs:
+              - from: get_gem_basic_infos 
+                extract_field: text
+        - id: flatten_gem_lists 
+          description: "using flatten function to get a dataframe of gem names"
+          type: transform 
+          function: flatten-lists-to-dataframe 
+          inputs:
+            task_inputs:
+              - from: filter_gem_names 
+                extract_field: text
+        - id: concat_gem_names_dataframe 
+          description: "concat gem names dataframe"
+          type: concat 
+          function: concat
+          inputs:
+            task_inputs:
+              - from: flatten_gem_lists   

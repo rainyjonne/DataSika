@@ -3,6 +3,7 @@
 ## NOTE: might need to think of some parrellal solutions for this function
 import pandas as pd
 from task_bypass.tasktypes.read.http_request import http_request, http_request_dynamic
+from IPython import embed
 
 def read_content(db, stage_name, task_id, inputs, function, _from_output = None):
     # for now all the read_content will do http_request related jobs
@@ -35,6 +36,39 @@ def read_content(db, stage_name, task_id, inputs, function, _from_output = None)
                     task_id: result_lists
                 }
 
+        if function == "http-request-dynamic":
+            params_df = pd.DataFrame({
+                'base_url': [user_input['base_url']],
+            })
+
+            fixed_items = user_input['params_fixed']
+            preserve_fields = []
+            result_lists = []
+            mapping_fields = {}
+
+            for item in fixed_items:
+                params_df[item['name']] = item['value']
+
+            params_df['base_url'] = user_input['base_url']
+
+            if 'headers' in user_input:
+                params_df['headers'] = json.dumps(user_input['headers'])
+
+            page_name = None
+            if 'pagination' in user_input:
+                page_name = user_input['pagination']['name']
+                start = user_input['pagination']['start']
+                end = user_input['pagination']['end']
+                params_df[page_name] = f"[{start}, {end}]"
+
+            result_df = http_request_dynamic(db, stage_name, task_id, params_df, preserve_fields, mapping_fields, page_name)
+
+            result_lists.append(result_df)
+
+            return {
+                task_id: result_lists
+            }
+
     if 'task_inputs' in inputs:
         task_input = inputs['task_inputs'][0]
         if function == 'http-request':
@@ -60,13 +94,16 @@ def read_content(db, stage_name, task_id, inputs, function, _from_output = None)
                 task_id: result_lists
             }
 
+
         if function == "http-request-dynamic":
             user_input = inputs['user_input']
             params_df = pd.DataFrame({
                 'base_url': [user_input['base_url']],
-            })
+                })
 
-            mapping_items = user_input['params_dynamic']
+            mapping_items = None
+            if 'params_dynamic' in user_input:
+                mapping_items = user_input['params_dynamic']
             fixed_items = user_input['params_fixed']
             param_dict = {}
             preserve_fields = []
@@ -77,8 +114,9 @@ def read_content(db, stage_name, task_id, inputs, function, _from_output = None)
                     param_dict[item['name']] = list(single_df[item['value']])
                     preserve_fields.append(item['name'])
                     mapping_fields[item['name']] = item['value']
-
-                params_df = pd.DataFrame(param_dict)
+                
+                if param_dict:
+                    params_df = pd.DataFrame(param_dict)
 
                 for item in fixed_items:
                     params_df[item['name']] = item['value']
@@ -88,15 +126,19 @@ def read_content(db, stage_name, task_id, inputs, function, _from_output = None)
                 if 'headers' in user_input:
                     params_df['headers'] = json.dumps(user_input['headers'])
 
-                result_df = http_request_dynamic(db, stage_name, task_id, params_df, preserve_fields, mapping_fields)
+                page_name = None
+                if 'pagination' in user_input:
+                    page_name = user_input['pagination']['name']
+                    till = user_input['pagination']['till']
+                    params_df[page_name] = till
+
+                result_df = http_request_dynamic(db, stage_name, task_id, params_df, preserve_fields, mapping_fields, page_name)
 
                 result_lists.append(result_df)
 
             return {
-                task_id: result_lists
-            }
-
-
+                    task_id: result_lists
+                    }
 
 
 

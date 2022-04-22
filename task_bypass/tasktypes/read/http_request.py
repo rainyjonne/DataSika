@@ -4,9 +4,11 @@ import requests as reqs
 import pandas as pd
 import numpy as np
 import json
+import ast
 
 # input: dataframe -> output: dataframe
 def http_request(db, stage_name, task_id, url_df, extract_field = None, preserve_origin_data = False):
+
 
     # for test
     if len(url_df.index) > 1000:
@@ -17,7 +19,6 @@ def http_request(db, stage_name, task_id, url_df, extract_field = None, preserve
     else:
         rows = url_df[0]
 
-    
     response_list = []
         
     headers = None
@@ -67,7 +68,7 @@ def http_request(db, stage_name, task_id, url_df, extract_field = None, preserve
 
 
 # input: a param dataframe -> output: prepared url dataframe
-def http_request_dynamic(db, stage_name, task_id, params_df, preserve_fields = None, mapping_fields = None):
+def http_request_dynamic(db, stage_name, task_id, params_df, preserve_fields = None, mapping_fields = None, pagination = None):
     request_df = pd.DataFrame()
     base_url = params_df['base_url'][0]
     # default doesn't preserve origin data
@@ -77,12 +78,15 @@ def http_request_dynamic(db, stage_name, task_id, params_df, preserve_fields = N
         params_df['base_url'] = f"{base_url}?"
 
     columns = list(params_df.columns)
-    # remove headers & base url column
-    if 'headers' in columns:
+    if "headers" in columns:
+        request_df['headers'] = params_df['headers']
+        # remove headers & base url column
         columns.remove("headers")
     columns.remove("base_url")
 
     for column in columns:
+        if column == pagination:
+            continue
         params_df['base_url'] = params_df['base_url'].map(str) + f"&{column}=" + params_df[column].map(str)
 
     if preserve_fields:
@@ -94,8 +98,17 @@ def http_request_dynamic(db, stage_name, task_id, params_df, preserve_fields = N
 
     request_df['base_url'] = params_df['base_url']
 
-    if "headers" in list(params_df.columns):
-        request_df['headers'] = params_df['headers']
+    # add pagination logic  
+    if pagination:
+        [start, end] = ast.literal_eval(params_df[pagination][0])
+        pages = list(range(start, end+1))
+        # replicate dataframe rows
+        temp_df = pd.DataFrame()
+        replicated_df = temp_df.append([request_df]*len(pages), ignore_index=True)
+        replicated_df[pagination] = pages
+        replicated_df['base_url'] = replicated_df['base_url'].map(str) + f"&{pagination}=" + replicated_df[pagination].map(str)
+        replicated_df = replicated_df.drop([pagination], axis=1)
+        request_df = replicated_df
 
     # reduce request numbers
     request_df = request_df.drop_duplicates(ignore_index=True)

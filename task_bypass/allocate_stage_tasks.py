@@ -45,7 +45,7 @@ def allocate_stage_tasks(stage_name, tasks, db, done_tasks={}):
                     tasks.remove(task)
                     tasks_cycle= cycle(tasks)
                 else:
-                    continue
+                    raise ValueError(f"{task['id']} has problems! The upstream task_id not found! Please check you have set your tasks correctly without wording problems!")
 
             else:
                 # do something for merging stage

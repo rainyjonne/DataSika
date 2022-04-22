@@ -10,6 +10,7 @@ from task_bypass.tasktypes.transform.transform_to_dataframe import transform_to_
 from task_bypass.tasktypes.transform.rename_columns import rename_columns
 from task_bypass.tasktypes.transform.get_length import get_length 
 from task_bypass.tasktypes.transform.split_dataframe_rows import split_dataframe_rows 
+from task_bypass.tasktypes.transform.flatten_lists_to_dataframe import flatten_lists_to_dataframe 
 
 def transform_content(task_id, inputs, function, _from_output):
     # presetting
@@ -64,7 +65,7 @@ def transform_content(task_id, inputs, function, _from_output):
 
 
 
-    if function == "transform-to-dataframe":
+    if  function == "transform-to-dataframe":
         str_type = task_input['str_type']
         result_lists = []
         for single_df in _from_output:
@@ -94,6 +95,16 @@ def transform_content(task_id, inputs, function, _from_output):
         }
 
 
+    if  function == "flatten-lists-to-dataframe":
+
+        result_lists = []
+        for single_df in _from_output:
+            result_df = flatten_lists_to_dataframe(single_df, extract_field, preserve_origin_data)
+            result_lists.append(result_df)
+
+        return {
+            task_id: result_lists
+        }
 
 
 

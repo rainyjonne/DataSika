@@ -2,6 +2,7 @@
 
 from IPython import embed
 from task_bypass.run_stages import run_stages 
+from task_bypass.run_stages import allocate_stage_tasks 
 from sql_db_handler import sql_db 
 import sqlite3
 import sys, yaml
@@ -28,7 +29,9 @@ db.createTable('_log', table_structure)
 
 
 # get stages
-final_output = run_stages(my_stages, pipeline_name, db)
+#final_output = run_stages(my_stages, pipeline_name, db)
+final_output = allocate_stage_tasks(my_stages[0]['id'], my_stages[0]['tasks'], db)
+
 
 embed()
 # show the results
