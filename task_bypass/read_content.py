@@ -8,67 +8,6 @@ from IPython import embed
 def read_content(db, stage_name, task_id, inputs, function, _from_output = None):
     # for now all the read_content will do http_request related jobs
 
-    result_lists = []
-    if 'user_input' in inputs:
-        user_input = inputs['user_input']
-        extract_field = None
-        if 'extract_field' in user_input:
-            extract_field = user_input['extract_field']
-
-        if function == 'http-request':
-            if user_input['file_format'] == 'csv':
-                if extract_field:
-                    input_df = pd.read_csv(user_input['file_name'])
-                    rows = input_df[extract_field]
-                else:
-                    input_df = pd.read_csv(user_input['file_name'], header=None)
-                    # default take index 0 column as input
-                    rows = input_df[0]
-                ## NOTE
-                for row in rows:
-                    # each of url df will produce a str df in return
-                    row_df = pd.DataFrame([row])
-                    result_df = http_request(db, stage_name, task_id, row_df)
-                    # add dataframe into lists (produce list of dataframes)
-                    result_lists.append(result_df)
-
-                return {
-                    task_id: result_lists
-                }
-
-        if function == "http-request-dynamic":
-            params_df = pd.DataFrame({
-                'base_url': [user_input['base_url']],
-            })
-
-            fixed_items = user_input['params_fixed']
-            preserve_fields = []
-            result_lists = []
-            mapping_fields = {}
-
-            for item in fixed_items:
-                params_df[item['name']] = item['value']
-
-            params_df['base_url'] = user_input['base_url']
-
-            if 'headers' in user_input:
-                params_df['headers'] = json.dumps(user_input['headers'])
-
-            page_name = None
-            if 'pagination' in user_input:
-                page_name = user_input['pagination']['name']
-                start = user_input['pagination']['start']
-                end = user_input['pagination']['end']
-                params_df[page_name] = f"[{start}, {end}]"
-
-            result_df = http_request_dynamic(db, stage_name, task_id, params_df, preserve_fields, mapping_fields, page_name)
-
-            result_lists.append(result_df)
-
-            return {
-                task_id: result_lists
-            }
-
     if 'task_inputs' in inputs:
         task_input = inputs['task_inputs'][0]
         if function == 'http-request':
@@ -143,6 +82,68 @@ def read_content(db, stage_name, task_id, inputs, function, _from_output = None)
             return {
                 task_id: result_lists
             }
+
+    result_lists = []
+    if 'user_input' in inputs:
+        user_input = inputs['user_input']
+        extract_field = None
+        if 'extract_field' in user_input:
+            extract_field = user_input['extract_field']
+
+        if function == 'http-request':
+            if user_input['file_format'] == 'csv':
+                if extract_field:
+                    input_df = pd.read_csv(user_input['file_name'])
+                    rows = input_df[extract_field]
+                else:
+                    input_df = pd.read_csv(user_input['file_name'], header=None)
+                    # default take index 0 column as input
+                    rows = input_df[0]
+                ## NOTE
+                for row in rows:
+                    # each of url df will produce a str df in return
+                    row_df = pd.DataFrame([row])
+                    result_df = http_request(db, stage_name, task_id, row_df)
+                    # add dataframe into lists (produce list of dataframes)
+                    result_lists.append(result_df)
+
+                return {
+                    task_id: result_lists
+                }
+
+        if function == "http-request-dynamic":
+            params_df = pd.DataFrame({
+                'base_url': [user_input['base_url']],
+            })
+
+            fixed_items = user_input['params_fixed']
+            preserve_fields = []
+            result_lists = []
+            mapping_fields = {}
+
+            for item in fixed_items:
+                params_df[item['name']] = item['value']
+
+            params_df['base_url'] = user_input['base_url']
+
+            if 'headers' in user_input:
+                params_df['headers'] = json.dumps(user_input['headers'])
+
+            page_name = None
+            if 'pagination' in user_input:
+                page_name = user_input['pagination']['name']
+                start = user_input['pagination']['start']
+                end = user_input['pagination']['end']
+                params_df[page_name] = f"[{start}, {end}]"
+
+            result_df = http_request_dynamic(db, stage_name, task_id, params_df, preserve_fields, mapping_fields, page_name)
+
+            result_lists.append(result_df)
+
+            return {
+                task_id: result_lists
+            }
+
 
 
 

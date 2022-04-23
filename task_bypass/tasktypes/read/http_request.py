@@ -5,6 +5,7 @@ import pandas as pd
 import numpy as np
 import json
 import ast
+from IPython import embed
 
 # input: dataframe -> output: dataframe
 def http_request(db, stage_name, task_id, url_df, extract_field = None, preserve_origin_data = False):
@@ -98,6 +99,7 @@ def http_request_dynamic(db, stage_name, task_id, params_df, preserve_fields = N
         if column == pagination:
             continue
         params_df['base_url'] = params_df['base_url'].map(str) + f"&{column}=" + params_df[column].map(str)
+
 
     if preserve_fields:
         request_df = params_df[preserve_fields]

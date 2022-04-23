@@ -136,6 +136,8 @@ pipeline:
             task_inputs:
               - from: request_uk_crime_data
                 extract_field: text
+                # NEW ADDED: preserve origin data
+                preserve_origin_data: True
         - id: rename_crime_columns
           description: "renamed text column into crime_incidents"
           type: transform

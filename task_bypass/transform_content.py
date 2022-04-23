@@ -6,7 +6,7 @@ import pandas as pd
 import json
 from functools import reduce
 from task_bypass.tasktypes.transform.decompress_content import decompress_content
-from task_bypass.tasktypes.transform.transform_to_dataframe import transform_to_dataframe
+from task_bypass.tasktypes.transform.transform_to_dataframe import transform_to_dataframe, json_path_lists_to_dataframe
 from task_bypass.tasktypes.transform.rename_columns import rename_columns
 from task_bypass.tasktypes.transform.get_length import get_length 
 from task_bypass.tasktypes.transform.split_dataframe_rows import split_dataframe_rows 
@@ -77,6 +77,23 @@ def transform_content(task_id, inputs, function, _from_output):
             else:
                 content = single_df[single_df.columns[0]][0]
             result_df = transform_to_dataframe(content, str_type)
+            result_lists.append(result_df)
+
+        return {
+            task_id: result_lists
+        }
+
+    if  function == "json-path-lists-to-dataframe":
+        result_lists = []
+        for single_df in _from_output:
+            # if user identify extract_field
+            if extract_field:
+                content = single_df[extract_field]
+            else:
+                content = single_df[single_df.columns[0]]
+
+            headers = task_input['headers']
+            result_df = json_path_lists_to_dataframe(content, headers)
             result_lists.append(result_df)
 
         return {

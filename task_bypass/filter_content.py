@@ -14,6 +14,9 @@ def filter_content(task_id, inputs,  function, _from_output, _last_output_name):
     if 'extract_field' in task_input:
         extract_field = task_input['extract_field']
 
+    preserve_origin_data = False 
+    if 'preserve_origin_data' in task_input:
+        preserve_origin_data = task_input['preserve_origin_data']
 
     # only one field value
     if "field" in user_input:
@@ -43,10 +46,8 @@ def filter_content(task_id, inputs,  function, _from_output, _last_output_name):
         if function == "json-path":
             result_lists = []
             for single_df in _from_output:
-                if 'extract_field' in task_input:
-                    extract_field = task_input['extract_field']
                 # each of dataframe from last task will produce a dataframe in return
-                filtered_df = json_path(single_df, syntax, extract_field)
+                filtered_df = json_path(single_df, syntax, extract_field, preserve_origin_data)
                 # add to list of dataframes
                 result_lists.append(filtered_df)
             

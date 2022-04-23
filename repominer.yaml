@@ -55,7 +55,7 @@ pipeline:
                 - 0: gem_names 
             task_inputs:
               - from: flatten_gem_lists
-        - id: concat_gem_names_dataframe 
+        - id: concat_gem_names_dataframes 
           description: "concat gem names dataframe"
           type: concat 
           function: concat
@@ -65,7 +65,7 @@ pipeline:
     - id: call_gem_api_stage
       from:
         - get_gems_stage
-      description: "stages for get basic gem infos"
+      description: "stage for get basic gem infos"
       tasks:
         # id: <verb>
         # user_input:
@@ -84,7 +84,7 @@ pipeline:
                 - name: gem_name 
                   value: gem_names
             task_inputs:
-              - from: concat_gem_names_dataframe
+              - from: concat_gem_names_dataframes
         - id: call_gem_apis  
           description: "call gem apis"
           type: read 
@@ -105,13 +105,91 @@ pipeline:
                 - text: body 
             task_inputs:
               - from: call_gem_apis 
-        - id: concat_call_gem_api_dataframe 
+        - id: concat_call_gem_api_dataframes 
           description: "concat gem api response dataframe"
           type: concat 
           function: concat
           inputs:
             task_inputs:
               - from: rename_response_info   
-
+    - id: filter_gem_info_stage 
+      from:
+        - call_gem_api_stage
+      description: "stage for filter gem infos"
+      tasks:
+        - id: filter_gem_infos  
+          description: "get gem_infos"
+          type: filter 
+          function: json-path 
+          inputs:
+            user_input:
+              field: '$["name", "downloads", "version", "version_downloads", "platform", "authors", "info", "licenses", "metadata", "sha", "project_uri", "gem_uri", "homepage_uri", "wiki_uri", "documentation_uri", "mailing_list_uri", "source_code_uri", "bug_tracker_uri", "changelog_uri"]' 
+            task_inputs:
+              - from: concat_call_gem_api_dataframes 
+                extract_field: body
+        - id: read_json_path_str_to_table
+          description: "read json str to dataframe"
+          type: transform
+          function: json-path-lists-to-dataframe
+          inputs:
+            task_inputs:
+              - headers:  '["gem_name", "downloads", "version", "version_downloads", "platform", "authors", "info", "licenses", "metadata", "sha", "project_uri", "gem_uri", "homepage_uri", "wiki_uri", "documentation_uri", "mailing_list_uri", "source_code_uri", "bug_tracker_uri", "changelog_uri"]'
+                from: filter_gem_infos 
+        - id: transform_license
+          description: "transform license format"
+          type: filter 
+          function: sql 
+          inputs:
+            user_input:
+              field: "
+                    SELECT *, REPLACE(REPLACE(REPLACE(licenses, '[', ''), ']', ''), ' ' ,'') as licenses_transformed 
+                    FROM read_json_path_str_to_table 
+                  "
+            task_inputs:
+              - from: read_json_path_str_to_table 
+        - id: concat_filter_gem_info_dataframes 
+          description: "concat filter gem info dataframe"
+          type: concat 
+          function: concat
+          inputs:
+            task_inputs:
+              - from: transform_license
+    - id: merged_stage
+      from:
+          - call_gem_api_stage
+          - filter_gem_info_stage 
+      tasks:
+        - id: combine_api_time_with_filtered_gem_data
+          description: "combined two data sources into a big dataframe"
+          type: merge
+          function: sql
+          inputs:
+            user_input:
+              field: "
+                    SELECT
+                      concat_call_gem_api_dataframes.gem_name as gem_name,
+                      concat_call_gem_api_dataframes.update_time as update_time,
+                      `downloads`, `version`, `version_downloads`,
+                      `platform`, `authors`, `info`,
+                      `licenses_transformed` as licenses, `metadata`,
+                      `sha`, `project_uri`, `gem_uri`, `homepage_uri`,
+                      `wiki_uri`, `documentation_uri`, `mailing_list_uri`,
+                      `source_code_uri`, `bug_tracker_uri`, `changelog_uri`
+                    FROM concat_filter_gem_info_dataframes
+                    INNER JOIN  concat_call_gem_api_dataframes
+                      ON (
+                        concat_filter_gem_info_dataframes.gem_name = concat_call_gem_api_dataframes.gem_name
+                      )
+                  "
+            task_inputs:
+              - from: concat_call_gem_api_dataframes
+              - from: concat_filter_gem_info_dataframes
+        - id: concat_final_dataframes
+          description: "concat list of final dataframes together"
+          type: concat
+          function: concat
+          inputs:
+            task_inputs:
+              - from: combine_api_time_with_filtered_gem_data  
 
 
