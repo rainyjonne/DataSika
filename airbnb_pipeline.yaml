@@ -132,7 +132,7 @@ pipeline:
           function: json-path 
           inputs:
             user_input:
-              field: '$.length()' 
+              field: '$.`len`' 
             task_inputs:
               - from: request_uk_crime_data
                 extract_field: text

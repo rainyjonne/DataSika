@@ -13,4 +13,4 @@ sqldf==0.4.2
 urllib3==1.26.8
 pandasql==0.7.3
 ipython==7.32.0
-jsonpath2==0.44
+jsonpath-ng==1.5.3

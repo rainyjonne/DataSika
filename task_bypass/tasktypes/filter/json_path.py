@@ -1,5 +1,4 @@
-import jsonpath2 as jp2
-from jsonpath2.path import Path
+from jsonpath_ng.ext import parse
 import json
 import pandas as pd
 from IPython import embed
@@ -15,11 +14,11 @@ def json_path(df, syntax, extract_field = None, preserve_origin_data = False):
     result_lists = []
     for row in rows:
         json_strs = json.loads(row)
-        p = Path.parse_str(syntax)
+        jsonpath_expr = parse(syntax)
 
         # if m.current_value's type is dictionary or list, turn it into json_str
         # else return original value
-        ret = [json.dumps(m.current_value) if type(m.current_value) == list or type(m.current_value) == dict else m.current_value for m in p.match(json_strs)]
+        ret = [json.dumps(m.value) if type(m.value) == list or type(m.value) == dict else m.value for m in jsonpath_expr.find(json_strs)]
 
         # if it returns only one element then extract it
         # e.g. length()
