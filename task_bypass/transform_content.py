@@ -6,12 +6,12 @@ import pandas as pd
 import json
 from functools import reduce
 from task_bypass.tasktypes.transform.decompress_content import decompress_content
-from task_bypass.tasktypes.transform.transform_to_dataframe import transform_to_dataframe, json_path_lists_to_dataframe
+from task_bypass.tasktypes.transform.transform_to_dataframe import transform_to_dataframe, json_array_to_dataframe
 from task_bypass.tasktypes.transform.rename_columns import rename_columns
 from task_bypass.tasktypes.transform.get_length import get_length 
 from task_bypass.tasktypes.transform.split_dataframe_rows import split_dataframe_rows 
 from task_bypass.tasktypes.transform.flatten_lists_to_dataframe import flatten_lists_to_dataframe 
-from task_bypass.tasktypes.transform.api_format_replacement import api_format_replacement 
+from task_bypass.tasktypes.transform.string_injecting import string_injecting 
 
 def transform_content(task_id, inputs, function, _from_output):
     # presetting
@@ -83,7 +83,7 @@ def transform_content(task_id, inputs, function, _from_output):
             task_id: result_lists
         }
 
-    if  function == "json-path-lists-to-dataframe":
+    if  function == "json-array-to-dataframe":
         result_lists = []
         for single_df in _from_output:
             # if user identify extract_field
@@ -93,7 +93,7 @@ def transform_content(task_id, inputs, function, _from_output):
                 content = single_df[single_df.columns[0]]
 
             headers = task_input['headers']
-            result_df = json_path_lists_to_dataframe(content, headers)
+            result_df = json_array_to_dataframe(content, headers)
             result_lists.append(result_df)
 
         return {
@@ -124,25 +124,23 @@ def transform_content(task_id, inputs, function, _from_output):
             task_id: result_lists
         }
 
-    if  function == "api-format-replacement":
+    if  function == "string-injecting":
         user_input = inputs['user_input']
-        base_url = user_input['base_url']
-        url_df = pd.DataFrame()
+        base_str = user_input['base_str']
+        base_df = pd.DataFrame()
 
-        mapping_items = None
-        if 'url_dynamic' in user_input:
-            mapping_items = user_input['url_dynamic']
+        mapping_items = user_input['inject_str']
 
         mapping_fields = {}
         result_lists = []
         for single_df in _from_output:
             for item in mapping_items:
-                replacing_nums = len(single_df[item['value']])
-                url_df = url_df.append([base_url]*replacing_nums, ignore_index=True)
-                url_df[item['name']] = list(single_df[item['value']])
+                injecting_nums = len(single_df[item['value']])
+                base_df = base_df.append([base_str]*injecting_nums, ignore_index=True)
+                base_df[item['name']] = list(single_df[item['value']])
                 mapping_fields[item['name']] = item['value']
                 
-            result_df = api_format_replacement(url_df)
+            result_df = string_injecting(base_df)
             result_lists.append(result_df)
 
         return {

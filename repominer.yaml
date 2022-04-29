@@ -73,14 +73,12 @@ pipeline:
         #     - name: <what you will get back after the syntax> <noun>
         - id: replace_gem_name_in_apis  
           description: "replace text(gem name) inside another text(base url)"
-          # need to discuss about type?
-          # will read be better?
           type: transform
-          function: api-format-replacement
+          function: string-injecting 
           inputs:
             user_input:
-              base_url: "https://rubygems.org/api/v1/gems/[gem_name].json"
-              url_dynamic:
+              base_str: "https://rubygems.org/api/v1/gems/[gem_name].json"
+              inject_str:
                 - name: gem_name 
                   value: gem_names
             task_inputs:
@@ -130,7 +128,7 @@ pipeline:
         - id: read_json_path_str_to_table
           description: "read json str to dataframe"
           type: transform
-          function: json-path-lists-to-dataframe
+          function: json-array-to-dataframe
           inputs:
             task_inputs:
               - headers:  '["gem_name", "downloads", "version", "version_downloads", "platform", "authors", "info", "licenses", "metadata", "sha", "project_uri", "gem_uri", "homepage_uri", "wiki_uri", "documentation_uri", "mailing_list_uri", "source_code_uri", "bug_tracker_uri", "changelog_uri"]'

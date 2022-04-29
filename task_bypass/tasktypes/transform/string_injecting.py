@@ -1,6 +1,6 @@
 import pandas as pd
 
-def api_format_replacement(df):
+def string_injecting(df):
     columns = list(df.columns)
     for column in columns:
         if column != 0:

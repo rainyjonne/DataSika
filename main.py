@@ -30,8 +30,6 @@ db.createTable('_log', table_structure)
 
 # get stages
 final_output = run_stages(my_stages, pipeline_name, db)
-#final_output = allocate_stage_tasks(my_stages[0]['id'], my_stages[0]['tasks'], db)
-
 
 embed()
 # show the results

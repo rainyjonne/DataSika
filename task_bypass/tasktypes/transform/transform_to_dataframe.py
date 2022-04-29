@@ -13,7 +13,7 @@ def transform_to_dataframe(input_string, str_type, result = None):
     if str_type == "json":
     	result = pd.DataFrame(json.loads(input_string))
 
-    if str_type == "json_path_list":
+    if str_type == "json_array":
         a_series = pd.Series(ast.literal_eval(input_string), index=result.columns)
         result = result.append(a_series, ignore_index=True)
 
@@ -21,11 +21,11 @@ def transform_to_dataframe(input_string, str_type, result = None):
     return result
 
 
-def json_path_lists_to_dataframe(rows, headers = None):
+def json_array_to_dataframe(rows, headers = None):
     headers = ast.literal_eval(headers)
     result = pd.DataFrame(columns=headers)
 
     for row in rows:
-        result = transform_to_dataframe(row, 'json_path_list', result)
+        result = transform_to_dataframe(row, 'json_array', result)
 
     return result
