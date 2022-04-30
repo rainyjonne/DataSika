@@ -16,3 +16,4 @@ ipython==7.32.0
 jsonpath-ng==1.5.3
 asyncio==3.4.3
 aiohttp==3.8.1
+nest_asyncio==1.5.5
