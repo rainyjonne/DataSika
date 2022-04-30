@@ -5,15 +5,55 @@ import pandas as pd
 import numpy as np
 import json
 import ast
+import asyncio
 from IPython import embed
+#import nest_asyncio
+#nest_asyncio.apply()
+#embed(using='asyncio')
+
+async def call_request(url, headers, db, stage_name, task_id):
+    response = reqs.get(url, headers=headers)
+    # adding basic information for calling api
+    date_time = str(datetime.now())
+    status_code = response.status_code
+
+    # logging
+    if status_code >= 400:
+        level = "ERROR"
+    else:
+        level = "INFO"
+    error_mesg = f"{status_code}: {response.text}"
+
+
+    table_values = f""" 
+        '{level}',
+        '{stage_name}',
+        '{task_id}',
+        '{date_time}',
+        '{error_mesg}',
+        ''
+    """
+    db.insert('_log', "?, ?, ?, ?, ?, ?",(level, stage_name, task_id, date_time, error_mesg, ''))
+    content_type = response.headers['Content-Type']
+    
+    ##REMINDER:
+    if 'application/x-gzip' in content_type:
+        # return bytes if the file hasn't been decompress yet
+        category = "binary"
+        response_ret = response.content
+    else:
+        # otherwise return pure text
+        category = "text"
+        response_ret = response.text
+    return (response_ret, category, status_code, date_time)
 
 # input: dataframe -> output: dataframe
-def http_request(db, stage_name, task_id, url_df, extract_field = None, preserve_origin_data = False):
+async def http_request(db, stage_name, task_id, url_df, extract_field = None, preserve_origin_data = False):
 
 
     # for test
     if len(url_df.index) > 1000:
-        url_df = url_df.sample(n=10)
+        url_df = url_df.sample(n=200)
 
     if extract_field:
         rows = url_df[extract_field]
@@ -25,57 +65,25 @@ def http_request(db, stage_name, task_id, url_df, extract_field = None, preserve
     headers = None
     date_time_list = []
     status_code_list = []
-    for url in rows:
-        if "headers" in url_df.columns:
-            # presume every row has same headers setting
-            headers= json.loads(url_df['headers'][0])
-        date_time = str(datetime.now())
-        date_time_list.append(date_time)
-        response = reqs.get(url, headers=headers)
-        
-        status_code = response.status_code
-        status_code_list.append(status_code)
-        if status_code >= 400:
-            level = "ERROR"
-        else:
-            level = "INFO"
-        error_mesg = f"{status_code}: {response.text}"
 
-
-        table_values = f""" 
-            '{level}',
-            '{stage_name}',
-            '{task_id}',
-            '{date_time}',
-            '{error_mesg}',
-            ''
-        """
-        db.insert('_log', "?, ?, ?, ?, ?, ?",(level, stage_name, task_id, date_time, error_mesg, ''))
-
-        content_type = response.headers['Content-Type']
+    if "headers" in url_df.columns:
+        # presume every row has same headers setting
+        headers= json.loads(url_df['headers'][0])
     
-        ##REMINDER:
-        if 'application/x-gzip' in content_type:
-            # return bytes if the file hasn't been decompress yet
-            category = "binary"
-            response_list.append(response.content)
-        else:
-            # otherwise return pure text
-            category = "text"
-            response_list.append(response.text)
-
-    # adding basic information for calling api
-    url_df['update_time'] = date_time_list 
-    url_df['status_code'] = status_code_list 
-        
+    responses = await asyncio.gather(*[call_request(url, headers, db, stage_name, task_id) for url in rows])
+  
+    resp_df = pd.DataFrame(responses, columns=["response", "category", "status_code", "update_time"])
     if preserve_origin_data:
-        url_df[category] = response_list
+        url_df[["response", "category", "status_code", "update_time"]] = resp_df
+        # rename dataframe columns
+        url_df.rename(columns={"response": url_df["category"][0]}, inplace=True)
+        final_df = url_df
     else:
-        url_df = pd.DataFrame()
-        url_df[category] = response_list
-
-    
-    return url_df
+        # rename dataframe columns
+        resp_df.rename(columns={"response": resp_df["category"][0]}, inplace=True)
+        final_df = resp_df
+   
+    return final_df
 
 
 # input: a param dataframe -> output: prepared url dataframe
@@ -125,7 +133,7 @@ def http_request_dynamic(db, stage_name, task_id, params_df, preserve_fields = N
     # reduce request numbers
     request_df = request_df.drop_duplicates(ignore_index=True)
 
-    result_df = http_request(db, stage_name, task_id, request_df, 'base_url', preserve_origin_data)
+    result_df = asyncio.run(http_request(db, stage_name, task_id, request_df, 'base_url', preserve_origin_data))
 
     return result_df
 

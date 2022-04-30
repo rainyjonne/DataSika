@@ -3,6 +3,7 @@
 ## NOTE: might need to think of some parrellal solutions for this function
 import pandas as pd
 from task_bypass.tasktypes.read.http_request import http_request, http_request_dynamic 
+import asyncio
 from IPython import embed
 
 def read_content(db, stage_name, task_id, inputs, function, _from_output = None):
@@ -23,12 +24,12 @@ def read_content(db, stage_name, task_id, inputs, function, _from_output = None)
             for single_df in _from_output:
                 if extract_field:
                     # each of single df will produce a df in return
-                    result_df = http_request(db, stage_name, task_id, single_df, extract_field, preserve_origin_data)
+                    result_df = asyncio.run(http_request(db, stage_name, task_id, single_df, extract_field, preserve_origin_data))
 
                 # no specific extract field
                 else:
                     # each of extract df will produce a df in return
-                    result_df = http_request(db, stage_name, task_id, single_df, preserve_origin_data=preserve_origin_data)
+                    result_df = asyncio.run(http_request(db, stage_name, task_id, single_df, preserve_origin_data=preserve_origin_data))
 
                 # add dataframe into lists (produce list of dataframes)
                 result_lists.append(result_df)
@@ -103,7 +104,7 @@ def read_content(db, stage_name, task_id, inputs, function, _from_output = None)
                 for row in rows:
                     # each of url df will produce a str df in return
                     row_df = pd.DataFrame([row])
-                    result_df = http_request(db, stage_name, task_id, row_df)
+                    result_df = asyncio.run(http_request(db, stage_name, task_id, row_df))
                     # add dataframe into lists (produce list of dataframes)
                     result_lists.append(result_df)
 
