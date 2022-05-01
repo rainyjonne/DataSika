@@ -6,7 +6,9 @@ from task_bypass.run_stages import allocate_stage_tasks
 from sql_db_handler import sql_db 
 import sqlite3
 import sys, yaml
+import time
 
+start_time = time.time()
 yaml_file_name = sys.argv[1]
 
 with open(yaml_file_name, "r") as stream:
@@ -31,6 +33,7 @@ db.createTable('_log', table_structure)
 # get stages
 final_output = run_stages(my_stages, pipeline_name, db)
 
+duration = time.time() - start_time
 embed()
 # show the results
 # final_output['concat_final_dataframes'][0]
