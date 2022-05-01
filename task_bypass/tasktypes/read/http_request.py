@@ -13,7 +13,7 @@ def http_request(db, stage_name, task_id, url_df, extract_field = None, preserve
 
     # for test
     if len(url_df.index) > 1000:
-        url_df = url_df.sample(n=10)
+        url_df = url_df.sample(n=100)
 
     if extract_field:
         rows = url_df[extract_field]
