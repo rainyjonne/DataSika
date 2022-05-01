@@ -16,7 +16,7 @@ def http_request(db, stage_name, task_id, url_df, extract_field = 0, preserve_or
     # for test
     if len(url_df.index) > 1000:
         #url_df = url_df.sample(n=10)
-        url_df = url_df[0:10]
+        url_df = url_df[0:100]
 
     # extract_field default is 0
     rows = url_df[extract_field]
