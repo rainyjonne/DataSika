@@ -29,6 +29,10 @@ def http_request(db, stage_name, task_id, url_df, extract_field = None, preserve
         if "headers" in url_df.columns:
             # presume every row has same headers setting
             headers= json.loads(url_df['headers'][0])
+            # clear caches for test
+            headers.update({'Cache-Control': 'no-cache'})
+        
+        headers = {'Cache-Control': 'no-cache'}
         date_time = str(datetime.now())
         date_time_list.append(date_time)
         response = reqs.get(url, headers=headers)
