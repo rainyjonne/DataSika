@@ -53,9 +53,10 @@ async def http_request(db, stage_name, task_id, url_df, extract_field = None, pr
 
     # for test
     if len(url_df.index) > 1000:
-        url_df = url_df.sample(n=10)
-        url_df = url_df.reset_index()
-        del url_df['index']
+        #url_df = url_df.sample(n=100)
+        #url_df = url_df.reset_index()
+        #del url_df['index']
+        url_df = url_df[0:100]
         
 
     if extract_field:
@@ -72,6 +73,12 @@ async def http_request(db, stage_name, task_id, url_df, extract_field = None, pr
     if "headers" in url_df.columns:
         # presume every row has same headers setting
         headers= json.loads(url_df['headers'][0])
+        # clear cache for duration test
+        headers.update({'Cache-Control': 'no-cache'})
+
+    # clear cache for duration test
+    headers = {'Cache-Control': 'no-cache'}
+
     
     responses = await asyncio.gather(*[call_request(url, headers, db, stage_name, task_id) for url in rows])
   
