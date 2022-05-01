@@ -1,40 +1,68 @@
 # http request function
 from datetime import datetime
-import requests as reqs
+from concurrent.futures import as_completed
+from requests_futures.sessions import FuturesSession
+from requests.adapters import HTTPAdapter
+from urllib3.util.retry import Retry
 import pandas as pd
 import numpy as np
 import json
 import ast
 from IPython import embed
 
+
+# set retries for avoiding request limits
+def session_configure(retries):
+    # force retry when bumping into this code
+    status_forcelist = [429]
+    session = FuturesSession()
+    retry = Retry(
+        total=retries,
+        read=retries,
+        connect=retries,
+        respect_retry_after_header=True,
+        status_forcelist=status_forcelist,
+    )
+
+    adapter = HTTPAdapter(max_retries=retry)
+    session.mount('http://', adapter)
+    session.mount('https://', adapter)
+
+    return session
+
+
 # input: dataframe -> output: dataframe
-def http_request(db, stage_name, task_id, url_df, extract_field = None, preserve_origin_data = False):
+def http_request(db, stage_name, task_id, url_df, extract_field = 0, preserve_origin_data = False):
 
 
     # for test
     if len(url_df.index) > 1000:
-        url_df = url_df.sample(n=10)
+        #url_df = url_df.sample(n=10)
+        url_df = url_df[0:500]
 
-    if extract_field:
-        rows = url_df[extract_field]
-    else:
-        rows = url_df[0]
+    # extract_field default is 0
+    rows = url_df[extract_field]
 
     response_list = []
         
     headers = None
     date_time_list = []
     status_code_list = []
-    for url in rows:
-        if "headers" in url_df.columns:
-            # presume every row has same headers setting
-            headers= json.loads(url_df['headers'][0])
+    if "headers" in url_df.columns:
+        # presume every row has same headers setting
+        headers= json.loads(url_df['headers'][0])
+
+    # set default retry for 3 times
+    session = session_configure(3)
+    futures = [session.get(url, headers=headers) for url in rows]
+   
+    resp_list = []
+    for future in as_completed(futures):
+        response = future.result()
+        url = response.url
         date_time = str(datetime.now())
-        date_time_list.append(date_time)
-        response = reqs.get(url, headers=headers)
         
         status_code = response.status_code
-        status_code_list.append(status_code)
         if status_code >= 400:
             level = "ERROR"
         else:
@@ -58,24 +86,27 @@ def http_request(db, stage_name, task_id, url_df, extract_field = None, preserve
         if 'application/x-gzip' in content_type:
             # return bytes if the file hasn't been decompress yet
             category = "binary"
-            response_list.append(response.content)
+            response_ret = response.content
         else:
             # otherwise return pure text
             category = "text"
-            response_list.append(response.text)
+            response_ret = response.text
 
-    # adding basic information for calling api
-    url_df['update_time'] = date_time_list 
-    url_df['status_code'] = status_code_list 
+        filtered_resp = (url, response_ret, status_code, date_time)
+        resp_list.append(filtered_resp)
+
+    resp_df = pd.DataFrame(resp_list, columns=[extract_field, "response", "status_code", "update_time"])
+    # rename dataframe columns
+    resp_df.rename(columns={"response": category}, inplace=True)
         
     if preserve_origin_data:
-        url_df[category] = response_list
+        # join back to the original url df
+        final_df = url_df.merge(resp_df, how="inner", on=extract_field) 
     else:
-        url_df = pd.DataFrame()
-        url_df[category] = response_list
+        final_df = resp_df[[category]]
 
     
-    return url_df
+    return final_df
 
 
 # input: a param dataframe -> output: prepared url dataframe
