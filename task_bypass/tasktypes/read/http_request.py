@@ -2,11 +2,33 @@
 from datetime import datetime
 from concurrent.futures import as_completed
 from requests_futures.sessions import FuturesSession
+from requests.adapters import HTTPAdapter
+from urllib3.util.retry import Retry
 import pandas as pd
 import numpy as np
 import json
 import ast
 from IPython import embed
+
+
+# set retries for avoiding request limits
+def session_configure(retries):
+    # force retry when bumping into this code
+    status_forcelist = [429]
+    session = FuturesSession()
+    retry = Retry(
+        total=retries,
+        read=retries,
+        connect=retries,
+        respect_retry_after_header=True,
+        status_forcelist=status_forcelist,
+    )
+
+    adapter = HTTPAdapter(max_retries=retry)
+    session.mount('http://', adapter)
+    session.mount('https://', adapter)
+
+    return session
 
 
 # input: dataframe -> output: dataframe
@@ -16,7 +38,7 @@ def http_request(db, stage_name, task_id, url_df, extract_field = 0, preserve_or
     # for test
     if len(url_df.index) > 1000:
         #url_df = url_df.sample(n=10)
-        url_df = url_df[0:100]
+        url_df = url_df[0:500]
 
     # extract_field default is 0
     rows = url_df[extract_field]
@@ -30,7 +52,8 @@ def http_request(db, stage_name, task_id, url_df, extract_field = 0, preserve_or
         # presume every row has same headers setting
         headers= json.loads(url_df['headers'][0])
 
-    session = FuturesSession()
+    # set default retry for 3 times
+    session = session_configure(3)
     futures = [session.get(url, headers=headers) for url in rows]
    
     resp_list = []
