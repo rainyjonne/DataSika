@@ -3,7 +3,7 @@
 from IPython import embed
 from task_bypass.run_stages import run_stages 
 from task_bypass.run_stages import allocate_stage_tasks 
-from sql_db_handler import sql_db 
+from db.sql_db_handler import sql_db 
 import sqlite3
 import sys, yaml
 import time
@@ -17,7 +17,7 @@ with open(yaml_file_name, "r") as stream:
     pipeline_name = file['name']
 
 # Create your db connection.
-db = sql_db(f'{pipeline_name}.db')
+db = sql_db(f'db/outputs/{pipeline_name}.db')
 table_structure = """
             'level' TEXT NOT NULL,
             'stage_name' TEXT NOT NULL,

@@ -1,0 +1,2 @@
+base_url,query,page
+https://rubygems.org/api/v1/search.json,*,"[1, 2]"
