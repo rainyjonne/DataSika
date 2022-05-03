@@ -1,0 +1,15 @@
+- extract_field: text 
+  input_file: tests/test_csvs/inputs/json_path_1.csv
+  output_file: tests/test_csvs/outputs/json_path_1.csv
+  preserve_origin_data: true
+  syntax: '$.`len`' 
+- extract_field: text 
+  input_file: tests/test_csvs/inputs/json_path_2.csv
+  output_file: tests/test_csvs/outputs/json_path_2.csv
+  preserve_origin_data: false 
+  syntax: '$..name' 
+- extract_field: body 
+  input_file: tests/test_csvs/inputs/json_path_3.csv
+  output_file: tests/test_csvs/outputs/json_path_3.csv
+  preserve_origin_data: false
+  syntax: '$["name", "downloads", "version", "version_downloads", "platform", "authors", "info", "licenses", "metadata", "sha", "project_uri", "gem_uri", "homepage_uri", "wiki_uri", "documentation_uri", "mailing_list_uri", "source_code_uri", "bug_tracker_uri", "changelog_uri"]' 

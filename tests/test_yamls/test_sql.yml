@@ -1,0 +1,31 @@
+- last_output_name: read_csv_str_to_table
+  input_file: tests/test_csvs/inputs/sql_1.csv
+  output_file: tests/test_csvs/outputs/sql_1.csv
+  syntax: "
+    SELECT
+    `id`, `listing_url`, `host_location`, `name`, `latitude`, `longitude`, `price`, `number_of_reviews`, 
+    `review_scores_rating`, `review_scores_accuracy`, `review_scores_cleanliness`, 
+    `review_scores_checkin`, `review_scores_communication`, `review_scores_location`,
+    `review_scores_value`,  (30-availability_30) as unavailability_30, 1 as key
+    FROM read_csv_str_to_table
+    WHERE has_availability = 't' 
+    AND ((90-availability_90) != 90 OR (365-availability_365) != 365)
+  "
+- last_output_name: filter_transform_listing 
+  input_file: tests/test_csvs/inputs/sql_2.csv
+  output_file: tests/test_csvs/outputs/sql_2.csv
+  syntax: " 
+    SELECT *
+    FROM filter_transform_listing
+    WHERE `unavailability_30` IS NOT NULL AND `latitude` IS NOT NULL AND `longitude` IS NOT NULL AND
+    `number_of_reviews` IS NOT NULL AND `review_scores_rating` IS NOT NULL AND `review_scores_accuracy` IS NOT NULL AND 
+    `review_scores_cleanliness` IS NOT NULL AND `review_scores_checkin` IS NOT NULL AND `review_scores_communication` IS NOT NULL AND 
+    `review_scores_location` IS NOT NULL AND `review_scores_value` IS NOT NULL AND `price` IS NOT NULL;
+  "
+- last_output_name: read_json_path_str_to_table 
+  input_file: tests/test_csvs/inputs/sql_3.csv
+  output_file: tests/test_csvs/outputs/sql_3.csv
+  syntax: " 
+    SELECT *, REPLACE(REPLACE(REPLACE(licenses, '[', ''), ']', ''), ' ' ,'') as licenses_transformed 
+    FROM read_json_path_str_to_table 
+    "

@@ -1,5 +1,4 @@
 from db.sql_db_handler import sql_db 
-from task_bypass.tasktypes.filter import *
 from task_bypass.tasktypes.transform import *
 from task_bypass.tasktypes.merge import *
 
