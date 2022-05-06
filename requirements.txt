@@ -14,3 +14,6 @@ pandasql==0.7.3
 ipython==7.32.0
 jsonpath-ng==1.5.3
 requests-futures==1.0.0
+pytest==7.1.2
+pytest-vcr==1.0.2
+pytest-mock==3.7.0

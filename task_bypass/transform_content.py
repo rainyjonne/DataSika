@@ -8,7 +8,6 @@ from functools import reduce
 from task_bypass.tasktypes.transform.decompress_content import decompress_content
 from task_bypass.tasktypes.transform.transform_to_dataframe import transform_to_dataframe, json_array_to_dataframe
 from task_bypass.tasktypes.transform.rename_columns import rename_columns
-from task_bypass.tasktypes.transform.get_length import get_length 
 from task_bypass.tasktypes.transform.split_dataframe_rows import split_dataframe_rows 
 from task_bypass.tasktypes.transform.flatten_lists_to_dataframe import flatten_lists_to_dataframe 
 from task_bypass.tasktypes.transform.string_injecting import string_injecting 
@@ -94,18 +93,6 @@ def transform_content(task_id, inputs, function, _from_output):
 
             headers = task_input['headers']
             result_df = json_array_to_dataframe(content, headers)
-            result_lists.append(result_df)
-
-        return {
-            task_id: result_lists
-        }
-
-    if  function == "get-length":
-        str_type = task_input['str_type']
-
-        result_lists = []
-        for single_df in _from_output:
-            result_df = get_length(single_df, str_type, extract_field, preserve_origin_data)
             result_lists.append(result_df)
 
         return {
