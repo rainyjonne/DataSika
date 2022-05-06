@@ -18,15 +18,3 @@
   input_file: tests/test_csvs/inputs/http_request_gzip_1.csv
   output_file: tests/test_csvs/outputs/http_request_gzip_1.csv
   preserve_origin_data: false
-- extract_field: '0'
-  input_file: tests/test_csvs/inputs/http_request_gzip_2.csv
-  output_file: tests/test_csvs/outputs/http_request_gzip_2.csv
-  preserve_origin_data: false
-- extract_field: '0'
-  input_file: tests/test_csvs/inputs/http_request_gzip_3.csv
-  output_file: tests/test_csvs/outputs/http_request_gzip_3.csv
-  preserve_origin_data: false
-- extract_field: '0'
-  input_file: tests/test_csvs/inputs/http_request_gzip_4.csv
-  output_file: tests/test_csvs/outputs/http_request_gzip_4.csv
-  preserve_origin_data: false

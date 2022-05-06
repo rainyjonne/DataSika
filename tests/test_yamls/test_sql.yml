@@ -11,20 +11,9 @@
     WHERE has_availability = 't' 
     AND ((90-availability_90) != 90 OR (365-availability_365) != 365)
   "
-- last_output_name: filter_transform_listing 
+- last_output_name: read_json_path_str_to_table 
   input_file: tests/test_csvs/inputs/sql_2.csv
   output_file: tests/test_csvs/outputs/sql_2.csv
-  syntax: " 
-    SELECT *
-    FROM filter_transform_listing
-    WHERE `unavailability_30` IS NOT NULL AND `latitude` IS NOT NULL AND `longitude` IS NOT NULL AND
-    `number_of_reviews` IS NOT NULL AND `review_scores_rating` IS NOT NULL AND `review_scores_accuracy` IS NOT NULL AND 
-    `review_scores_cleanliness` IS NOT NULL AND `review_scores_checkin` IS NOT NULL AND `review_scores_communication` IS NOT NULL AND 
-    `review_scores_location` IS NOT NULL AND `review_scores_value` IS NOT NULL AND `price` IS NOT NULL;
-  "
-- last_output_name: read_json_path_str_to_table 
-  input_file: tests/test_csvs/inputs/sql_3.csv
-  output_file: tests/test_csvs/outputs/sql_3.csv
   syntax: " 
     SELECT *, REPLACE(REPLACE(REPLACE(licenses, '[', ''), ']', ''), ' ' ,'') as licenses_transformed 
     FROM read_json_path_str_to_table 
