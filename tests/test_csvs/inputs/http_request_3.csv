@@ -1,0 +1,3 @@
+base_url
+https://rubygems.org/api/v1/search.json?&query=*&page=1
+https://rubygems.org/api/v1/search.json?&query=*&page=2

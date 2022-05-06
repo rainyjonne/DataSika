@@ -1,0 +1,10 @@
+- input_file: tests/test_csvs/inputs/http_request_dynamic_1.csv
+  output_file: tests/test_csvs/outputs/http_request_dynamic_1.csv
+  mapping_fields: {'lat': 'latitude', 'lng': 'longitude'}
+  preserve_fields: ['lat', 'lng']
+  pagination: '' 
+- input_file: tests/test_csvs/inputs/http_request_dynamic_2.csv
+  output_file: tests/test_csvs/outputs/http_request_dynamic_2.csv
+  mapping_fields: {}
+  preserve_fields: []
+  pagination: 'page' 

@@ -1,0 +1,4 @@
+- extract_field: text 
+  input_file: tests/test_csvs/inputs/xpath_1.csv
+  output_file: tests/test_csvs/outputs/xpath_1.csv
+  syntax: "//a[contains(@href, 'listings.csv.gz')][contains(@href, 'http')][contains(@href, 'united-kingdom')]/@href" 
