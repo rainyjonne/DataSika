@@ -103,7 +103,8 @@ def http_request(db, stage_name, task_id, url_df, extract_field = 0, preserve_or
         # join back to the original url df
         final_df = url_df.merge(resp_df, how="inner", on=extract_field) 
     else:
-        final_df = resp_df[[category]]
+        final_df = url_df.merge(resp_df, how="inner", on=extract_field) 
+        final_df = final_df[[category]]
 
     
     return final_df
