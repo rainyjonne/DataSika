@@ -1,0 +1,11 @@
+latitude,longitude,base_url,crime_incidents,status_code,update_time
+51.43994,-2.59173,https://data.police.uk/api/crimes-street/all-crime?&lat=51.43994&lng=-2.59173&date=2021-11,987,200,2022-05-06 20:25:28.977457
+51.450509999999994,-2.6105400000000003,https://data.police.uk/api/crimes-street/all-crime?&lat=51.450509999999994&lng=-2.6105400000000003&date=2021-11,1191,200,2022-05-06 20:25:28.798854
+51.44101,-2.60121,https://data.police.uk/api/crimes-street/all-crime?&lat=51.44101&lng=-2.60121&date=2021-11,1035,200,2022-05-06 20:25:29.400431
+51.466409999999996,-2.55533,https://data.police.uk/api/crimes-street/all-crime?&lat=51.466409999999996&lng=-2.55533&date=2021-11,580,200,2022-05-06 20:25:27.094395
+51.46668,-2.5827400000000003,https://data.police.uk/api/crimes-street/all-crime?&lat=51.46668&lng=-2.5827400000000003&date=2021-11,1121,200,2022-05-06 20:25:29.920603
+51.466609999999996,-2.5870900000000003,https://data.police.uk/api/crimes-street/all-crime?&lat=51.466609999999996&lng=-2.5870900000000003&date=2021-11,1157,200,2022-05-06 20:25:28.847399
+51.44429,-2.55777,https://data.police.uk/api/crimes-street/all-crime?&lat=51.44429&lng=-2.55777&date=2021-11,335,200,2022-05-06 20:25:27.558129
+51.49508,-2.61715,https://data.police.uk/api/crimes-street/all-crime?&lat=51.49508&lng=-2.61715&date=2021-11,215,200,2022-05-06 20:25:27.778636
+51.469409999999996,-2.58166,https://data.police.uk/api/crimes-street/all-crime?&lat=51.469409999999996&lng=-2.58166&date=2021-11,1050,200,2022-05-06 20:25:29.508664
+51.46547,-2.58458,https://data.police.uk/api/crimes-street/all-crime?&lat=51.46547&lng=-2.58458&date=2021-11,1203,200,2022-05-06 20:25:30.268337

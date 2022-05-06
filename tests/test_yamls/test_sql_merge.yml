@@ -1,0 +1,43 @@
+- inputs:
+    - from: concat_call_gem_api_dataframes
+      file_path: tests/test_csvs/inputs/sql_merge_1_1.csv
+    - from: concat_filter_gem_info_dataframes
+      file_path: tests/test_csvs/inputs/sql_merge_1_2.csv
+  output_file: tests/test_csvs/outputs/sql_merge_1.csv
+  syntax: "
+    SELECT
+    concat_call_gem_api_dataframes.gem_name as gem_name,
+    concat_call_gem_api_dataframes.update_time as update_time,
+    `downloads`, `version`, `version_downloads`,
+    `platform`, `authors`, `info`,
+    `licenses_transformed` as licenses, `metadata`,
+    `sha`, `project_uri`, `gem_uri`, `homepage_uri`,
+    `wiki_uri`, `documentation_uri`, `mailing_list_uri`,
+    `source_code_uri`, `bug_tracker_uri`, `changelog_uri`
+    FROM concat_filter_gem_info_dataframes
+    INNER JOIN  concat_call_gem_api_dataframes
+    ON (
+    concat_filter_gem_info_dataframes.gem_name = concat_call_gem_api_dataframes.gem_name
+    )
+    "
+- inputs:
+    - from: concat_airbnb_dataframes
+      file_path: tests/test_csvs/inputs/sql_merge_2_1.csv
+    - from: concat_crime_dataframes
+      file_path: tests/test_csvs/inputs/sql_merge_2_2.csv
+  output_file: tests/test_csvs/outputs/sql_merge_2.csv
+  syntax: "
+    SELECT
+    `id`, `listing_url`, `name`, `host_location`, concat_airbnb_dataframes.latitude as `latitude`,
+    concat_airbnb_dataframes.longitude as `longitude`, `price`, `number_of_reviews`, 
+    `review_scores_rating`, `review_scores_accuracy`, `review_scores_cleanliness`, 
+    `review_scores_checkin`, `review_scores_communication`, `review_scores_location`, `review_scores_value`,
+    `crime_incidents`, `unavailability_30`
+    FROM concat_airbnb_dataframes
+    INNER JOIN  concat_crime_dataframes
+    ON (
+    concat_airbnb_dataframes.latitude = concat_crime_dataframes.latitude
+    AND
+    concat_airbnb_dataframes.longitude = concat_crime_dataframes.longitude
+    )
+    "

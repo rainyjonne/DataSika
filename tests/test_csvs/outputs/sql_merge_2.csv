@@ -1,0 +1,11 @@
+id,listing_url,name,host_location,latitude,longitude,price,number_of_reviews,review_scores_rating,review_scores_accuracy,review_scores_cleanliness,review_scores_checkin,review_scores_communication,review_scores_location,review_scores_value,crime_incidents,unavailability_30
+70820,https://www.airbnb.com/rooms/70820,City View - Sarah's double room.,"Bristol, England, United Kingdom",51.43994,-2.59173,$36.00,160,4.78,4.91,4.69,4.96,4.97,4.76,4.76,987,30
+117122,https://www.airbnb.com/rooms/117122,City Centre-Waterside Retreat,"Bristol, England, United Kingdom",51.450509999999994,-2.6105400000000003,$96.00,154,4.95,4.94,4.98,5.0,4.99,4.97,4.88,1191,8
+176306,https://www.airbnb.com/rooms/176306,The White Room -  Central Bristol Art House Garden,"Bristol, England, United Kingdom",51.44101,-2.60121,$29.00,39,4.73,4.6,4.34,5.0,4.94,4.69,4.63,1035,30
+307634,https://www.airbnb.com/rooms/307634,Peaceful Safe Home & Clear Space 'The Lilac Room',"Bristol, England, United Kingdom",51.466409999999996,-2.55533,$50.00,23,4.57,4.9,4.74,4.9,4.75,4.75,4.5,580,8
+322906,https://www.airbnb.com/rooms/322906,HUGE Room CENTRAL location House,"Bristol, England, United Kingdom",51.46668,-2.5827400000000003,$86.00,81,4.7,4.64,4.58,4.89,4.95,4.51,4.61,1121,13
+341227,https://www.airbnb.com/rooms/341227,Listed Georgian house in the heart of Bristol.,"Bristol, England, United Kingdom",51.466609999999996,-2.5870900000000003,$536.00,98,4.94,4.89,4.84,4.96,4.96,4.82,4.69,1157,3
+390781,https://www.airbnb.com/rooms/390781,"Cosy large room nr TV studios, Paintworks & stores","Brislington, England, United Kingdom",51.44429,-2.55777,$30.00,44,4.93,4.88,4.95,4.93,4.93,4.81,4.9,335,17
+399681,https://www.airbnb.com/rooms/399681,Historic Trym House - five star!,"Bristol, England, United Kingdom",51.49508,-2.61715,$80.00,76,4.96,4.99,4.99,4.99,4.99,4.96,4.88,215,29
+407485,https://www.airbnb.com/rooms/407485,Bristol Luxury Garden Apartment,UK,51.469409999999996,-2.58166,$93.00,275,4.88,4.91,4.93,4.94,4.93,4.75,4.73,1050,24
+421205,https://www.airbnb.com/rooms/421205,The dog lovers haven,"Bristol, England, United Kingdom",51.46547,-2.58458,$26.00,169,4.92,4.95,4.87,4.98,4.99,4.87,4.87,1203,28
