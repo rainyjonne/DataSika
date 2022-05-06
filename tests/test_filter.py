@@ -1,4 +1,3 @@
-from . import configure
 import yaml
 import pytest
 import pandas as pd
@@ -6,11 +5,10 @@ from task_bypass.tasktypes.filter.json_path import json_path
 from task_bypass.tasktypes.filter.sql import sql 
 from task_bypass.tasktypes.filter.xpath import xpath 
 
-db = configure()
 
-def filter_setup(filter_type):
+def filter_setup(function):
 
-    if filter_type == "json-path":
+    if function == "json-path":
         # read in file infos
         with open("tests/test_yamls/test_json_path.yml", "r") as stream:
             file_infos = yaml.safe_load(stream)
@@ -32,7 +30,7 @@ def filter_setup(filter_type):
     
         return filter_infos
 
-    if filter_type == "xpath":
+    if function == "xpath":
         # read in file infos
         with open("tests/test_yamls/test_xpath.yml", "r") as stream:
             file_infos = yaml.safe_load(stream)
@@ -53,7 +51,7 @@ def filter_setup(filter_type):
     
         return filter_infos
 
-    if filter_type == "sql":
+    if function == "sql":
         # read in file infos
         with open("tests/test_yamls/test_sql.yml", "r") as stream:
             file_infos = yaml.safe_load(stream)

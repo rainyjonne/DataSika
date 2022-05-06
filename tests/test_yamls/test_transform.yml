@@ -1,0 +1,32 @@
+- function: decompress-content 
+  input_file: tests/test_csvs/inputs/decompress_content_1.csv
+  output_file: tests/test_csvs/outputs/decompress_content_1.csv
+- function: transform-to-dataframe 
+  input_file: tests/test_csvs/inputs/transform_to_dataframe_1.csv
+  output_file: tests/test_csvs/outputs/transform_to_dataframe_1.csv
+  str_type: csv
+- function: split-dataframe-rows 
+  input_file: tests/test_csvs/inputs/split_dataframe_rows_1.csv
+  output_files:
+    - tests/test_csvs/outputs/split_dataframe_rows_1_1.csv
+    - tests/test_csvs/outputs/split_dataframe_rows_1_2.csv
+    - tests/test_csvs/outputs/split_dataframe_rows_1_3.csv
+    - tests/test_csvs/outputs/split_dataframe_rows_1_4.csv
+- function: flatten-lists-to-dataframe 
+  input_file: tests/test_csvs/inputs/flatten_lists_to_dataframe_1.csv
+  output_file: tests/test_csvs/outputs/flatten_lists_to_dataframe_1.csv
+  extract_field: text
+  preserve_origin_data: false
+- function: string-injecting 
+  input_file: tests/test_csvs/inputs/string_injecting_1.csv
+  output_file: tests/test_csvs/outputs/string_injecting_1.csv
+- function: rename-columns 
+  input_file: tests/test_csvs/inputs/rename_columns_1.csv
+  output_file: tests/test_csvs/outputs/rename_columns_1.csv
+  rename_map: {'latitude': 'lat', 'longitude': 'long'}
+- function: json-array-to-dataframe 
+  input_file: tests/test_csvs/inputs/json_array_to_dataframe_1.csv
+  output_file: tests/test_csvs/outputs/json_array_to_dataframe_1.csv
+  extract_field: body
+  headers: '["gem_name", "downloads", "version", "version_downloads", "platform", "authors", "info", "licenses", "metadata", "sha", "project_uri", "gem_uri", "homepage_uri", "wiki_uri", "documentation_uri", "mailing_list_uri", "source_code_uri", "bug_tracker_uri", "changelog_uri"]'
+
