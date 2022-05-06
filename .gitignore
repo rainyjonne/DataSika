@@ -3,5 +3,3 @@ __pycache__/
 *.db
 *.db-journal
 *.sw[op]
-tests/cassettes
-once_record_tests/cassettes
