@@ -3,35 +3,41 @@
 ## NOTE: might need to think of some parrellal solutions for this function
 import pandas as pd
 from task_bypass.tasktypes.read.http_request import http_request, http_request_dynamic 
+from concurrent.futures import ThreadPoolExecutor
+from itertools import repeat
 from IPython import embed
 
+def concurrent_configure():
+    executor = ThreadPoolExecutor(max_workers=5)
+    return executor
+
 def read_content(db, stage_name, task_id, inputs, function, _from_output = None):
+    # get executor
+    executor = concurrent_configure()
     # for now all the read_content will do http_request related jobs
 
     if 'task_inputs' in inputs:
         task_input = inputs['task_inputs'][0]
         if function == 'http-request':
             result_lists = []
-            extract_field = None
+            extract_field = 0 
             if 'extract_field' in task_input:
                 extract_field = task_input['extract_field']
 
-            preserve_origin_data = None
+            preserve_origin_data = False 
             if 'preserve_origin_data' in task_input:
                 preserve_origin_data = task_input['preserve_origin_data']
 
-            for single_df in _from_output:
-                if extract_field:
-                    # each of single df will produce a df in return
-                    result_df = http_request(db, stage_name, task_id, single_df, extract_field, preserve_origin_data)
-
-                # no specific extract field
-                else:
-                    # each of extract df will produce a df in return
-                    result_df = http_request(db, stage_name, task_id, single_df, preserve_origin_data=preserve_origin_data)
-
-                # add dataframe into lists (produce list of dataframes)
-                result_lists.append(result_df)
+            # dealing with list of dataframes
+            result_lists = list(executor.map(
+                http_request,
+                repeat(db),
+                repeat(stage_name),
+                repeat(task_id),
+                _from_output,
+                repeat(extract_field),
+                repeat(preserve_origin_data)
+            ))
 
             return {
                 task_id: result_lists
@@ -99,13 +105,16 @@ def read_content(db, stage_name, task_id, inputs, function, _from_output = None)
                     input_df = pd.read_csv(user_input['file_name'], header=None)
                     # default take index 0 column as input
                     rows = input_df[0]
-                ## NOTE
-                for row in rows:
-                    # each of url df will produce a str df in return
-                    row_df = pd.DataFrame([row])
-                    result_df = http_request(db, stage_name, task_id, row_df)
-                    # add dataframe into lists (produce list of dataframes)
-                    result_lists.append(result_df)
+
+                row_dfs = [pd.DataFrame([row]) for row in rows]
+                # dealing with list of dataframes
+                result_lists = list(executor.map(
+                    http_request,
+                    repeat(db),
+                    repeat(stage_name),
+                    repeat(task_id),
+                    row_dfs
+                ))
 
                 return {
                     task_id: result_lists

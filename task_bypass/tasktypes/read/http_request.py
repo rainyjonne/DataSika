@@ -69,16 +69,16 @@ def http_request(db, stage_name, task_id, url_df, extract_field = 0, preserve_or
             level = "INFO"
         error_mesg = f"{status_code}: {response.text}"
 
-
-        table_values = f""" 
-            '{level}',
-            '{stage_name}',
-            '{task_id}',
-            '{date_time}',
-            '{error_mesg}',
-            ''
-        """
-        db.insert('_log', "?, ?, ?, ?, ?, ?",(level, stage_name, task_id, date_time, error_mesg, ''))
+        # PROBLEM DISCUSS: sqlite3 multithreading prob (logging)
+        # table_values = f""" 
+        #     '{level}',
+        #     '{stage_name}',
+        #     '{task_id}',
+        #     '{date_time}',
+        #     '{error_mesg}',
+        #     ''
+        # """
+        # db.insert('_log', "?, ?, ?, ?, ?, ?",(level, stage_name, task_id, date_time, error_mesg, ''))
 
         content_type = response.headers['Content-Type']
     
