@@ -1,38 +1,22 @@
 # http request function
 from datetime import datetime
-from concurrent.futures import as_completed
-from requests_futures.sessions import FuturesSession
-from requests.adapters import HTTPAdapter
-from urllib3.util.retry import Retry
 import pandas as pd
 import numpy as np
 import json
 import ast
+from promisio import promisify, Promise
+import asyncio
 from IPython import embed
+import requests
+import nest_asyncio
+nest_asyncio.apply()
 
-
-# set retries for avoiding request limits
-def session_configure(retries):
-    # force retry when bumping into this code
-    status_forcelist = [429]
-    session = FuturesSession()
-    retry = Retry(
-        total=retries,
-        read=retries,
-        connect=retries,
-        respect_retry_after_header=True,
-        status_forcelist=status_forcelist,
-    )
-
-    adapter = HTTPAdapter(max_retries=retry)
-    session.mount('http://', adapter)
-    session.mount('https://', adapter)
-
-    return session
-
+@promisify
+def call_request(url, headers):
+    return requests.get(url, headers)
 
 # input: dataframe -> output: dataframe
-def http_request(db, stage_name, task_id, url_df, extract_field = 0, preserve_origin_data = False):
+async def http_request(db, stage_name, task_id, url_df, extract_field = 0, preserve_origin_data = False):
 
 
     # for test
@@ -52,13 +36,12 @@ def http_request(db, stage_name, task_id, url_df, extract_field = 0, preserve_or
         # presume every row has same headers setting
         headers= json.loads(url_df['headers'][0])
 
-    # set default retry for 3 times
-    session = session_configure(3)
-    futures = [session.get(url, headers=headers) for url in rows]
-   
+    promises = await Promise.all_settled([call_request(url, headers=headers) for url in rows])
+ 
     resp_list = []
-    for future in as_completed(futures):
-        response = future.result()
+    #embed(using='asyncio')
+    for promise in promises:
+        response = promise['value']
         url = response.url
         date_time = str(datetime.now())
         
@@ -157,7 +140,7 @@ def http_request_dynamic(db, stage_name, task_id, params_df, preserve_fields = N
     # reduce request numbers
     request_df = request_df.drop_duplicates(ignore_index=True)
 
-    result_df = http_request(db, stage_name, task_id, request_df, 'base_url', preserve_origin_data)
+    result_df = asyncio.run(http_request(db, stage_name, task_id, request_df, 'base_url', preserve_origin_data))
 
     return result_df
 
