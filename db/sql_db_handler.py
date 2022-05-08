@@ -48,3 +48,10 @@ class sql_db:
             logging.info(f"DropTable Error! Error message: {e}")
             return 0
 
+    def dropAllTables(self):
+        # get all tables
+        self.c.execute("SELECT name FROM sqlite_schema WHERE type='table';")
+        tables = self.c.fetchall()
+        for (table, ) in tables:
+            self.c.execute(f"DROP TABLE IF EXISTS {table}")
+            

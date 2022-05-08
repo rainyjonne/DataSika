@@ -5,6 +5,8 @@ from task_bypass.tasktypes.merge import *
 def configure():
     # Create your db connection.
     db = sql_db(f'db/outputs/test.db')
+    # Drop tables inside test db
+    db.dropAllTables()
     table_structure = """
             'level' TEXT NOT NULL,
             'stage_name' TEXT NOT NULL,
@@ -13,8 +15,6 @@ def configure():
             'error_message' TEXT,
             'other_info' TEXT
             """
-    # Drop tables inside test db
-    db.dropTable('_log')
 
     # Create logging table
     db.createTable('_log', table_structure)

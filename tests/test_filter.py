@@ -1,9 +1,7 @@
+from .handler import function_handler
 import yaml
 import pytest
 import pandas as pd
-from task_bypass.tasktypes.filter.json_path import json_path
-from task_bypass.tasktypes.filter.sql import sql 
-from task_bypass.tasktypes.filter.xpath import xpath 
 
 
 def filter_setup(function):
@@ -74,7 +72,8 @@ def filter_setup(function):
 
 @pytest.mark.parametrize("input_df, output_df, syntax, extract_field, preserve_origin_data", filter_setup("json-path"))
 def test_json_path(input_df, output_df, syntax, extract_field, preserve_origin_data):
-    filtered_df = json_path(input_df, syntax, extract_field, preserve_origin_data)
+    params = (input_df, syntax, extract_field, preserve_origin_data)
+    filtered_df = function_handler('json_path', params)
 
     # sort the values
     output_df.sort_values(by=[output_df.columns[0]], inplace=True, ignore_index=True)
@@ -89,7 +88,8 @@ def test_json_path(input_df, output_df, syntax, extract_field, preserve_origin_d
 
 @pytest.mark.parametrize("input_df, output_df, syntax, extract_field", filter_setup("xpath"))
 def test_xpath(input_df, output_df, syntax, extract_field):
-    filtered_df = xpath(input_df, syntax, extract_field)
+    params = (input_df, syntax, extract_field)
+    filtered_df = function_handler('xpath', params)
 
     # sort the values
     output_df.sort_values(by=[output_df.columns[0]], inplace=True, ignore_index=True)
@@ -104,7 +104,8 @@ def test_xpath(input_df, output_df, syntax, extract_field):
 
 @pytest.mark.parametrize("input_df, output_df, syntax, last_output_name", filter_setup("sql"))
 def test_sql(input_df, output_df, syntax, last_output_name):
-    filtered_df = sql(last_output_name, input_df, syntax)
+    params = (last_output_name, input_df, syntax)
+    filtered_df = function_handler('sql', params)
 
     # sort the values
     output_df.sort_values(by=[output_df.columns[0]], inplace=True, ignore_index=True)

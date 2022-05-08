@@ -1,12 +1,7 @@
+from .handler import function_handler
 import yaml
 import pytest
 import pandas as pd
-from task_bypass.tasktypes.transform.decompress_content import decompress_content 
-from task_bypass.tasktypes.transform.flatten_lists_to_dataframe import flatten_lists_to_dataframe
-from task_bypass.tasktypes.transform.split_dataframe_rows import split_dataframe_rows 
-from task_bypass.tasktypes.transform.string_injecting import string_injecting 
-from task_bypass.tasktypes.transform.rename_columns import rename_columns 
-from task_bypass.tasktypes.transform.transform_to_dataframe import transform_to_dataframe, json_array_to_dataframe 
 
 
 def transform_setup(function):
@@ -138,7 +133,8 @@ def transform_setup(function):
 
 @pytest.mark.parametrize("input_df, output_df", transform_setup("decompress-content"))
 def test_decompress_content(input_df, output_df):
-    transformed_df = decompress_content(input_df)
+    params = (input_df, )
+    transformed_df = function_handler('decompress_content', params)
 
     # compare values
     assert (output_df.values ==  transformed_df.values).all()
@@ -150,7 +146,8 @@ def test_decompress_content(input_df, output_df):
 
 @pytest.mark.parametrize("input_df, output_df, str_type", transform_setup("transform-to-dataframe"))
 def test_transform_to_dataframe(input_df, output_df, str_type):
-    transformed_df = transform_to_dataframe(input_df['0'][0], str_type)
+    params = (input_df['0'][0], str_type)
+    transformed_df = function_handler('transform_to_dataframe', params)
 
     # round the values to decimal 2
     output_df = output_df.round(2)
@@ -170,7 +167,8 @@ def test_transform_to_dataframe(input_df, output_df, str_type):
 
 @pytest.mark.parametrize("input_df, output_dfs", transform_setup("split-dataframe-rows"))
 def test_split_dataframe_rows(input_df, output_dfs):
-    transformed_dfs = split_dataframe_rows(input_df, 'test')
+    params = (input_df, 'test')
+    transformed_dfs = function_handler('split_dataframe_rows', params)
 
     # deleted unneeded columns
     transformed_dfs = [df[[0]] for df in transformed_dfs]
@@ -186,7 +184,8 @@ def test_split_dataframe_rows(input_df, output_dfs):
     
 @pytest.mark.parametrize("input_df, output_df, extract_field, preserve_origin_data", transform_setup("flatten-lists-to-dataframe"))
 def test_flatten_lists_to_dataframe(input_df, output_df, extract_field, preserve_origin_data):
-    transformed_df = flatten_lists_to_dataframe(input_df, extract_field, preserve_origin_data)
+    params = (input_df, extract_field, preserve_origin_data)
+    transformed_df = function_handler('flatten_lists_to_dataframe', params)
 
     # compare values
     assert (output_df.values ==  transformed_df.values).all()
@@ -198,7 +197,8 @@ def test_flatten_lists_to_dataframe(input_df, output_df, extract_field, preserve
 
 @pytest.mark.parametrize("input_df, output_df", transform_setup("string-injecting"))
 def test_string_injecting(input_df, output_df):
-    transformed_df = string_injecting(input_df)
+    params = (input_df, )
+    transformed_df = function_handler('string_injecting', params)
 
     # compare values
     assert (output_df.values ==  transformed_df.values).all()
@@ -210,7 +210,8 @@ def test_string_injecting(input_df, output_df):
 
 @pytest.mark.parametrize("input_df, output_df, map_dict", transform_setup("rename-columns"))
 def test_rename_columns(input_df, output_df, map_dict):
-    transformed_df = rename_columns(input_df, map_dict)
+    params = (input_df, map_dict)
+    transformed_df = function_handler('rename_columns', params)
 
     # compare values
     assert (output_df.values ==  transformed_df.values).all()
@@ -222,7 +223,8 @@ def test_rename_columns(input_df, output_df, map_dict):
 
 @pytest.mark.parametrize("input_df, output_df, extract_field, headers", transform_setup("json-array-to-dataframe"))
 def test_json_array_to_dataframe(input_df, output_df, extract_field, headers):
-    transformed_df = json_array_to_dataframe(input_df[extract_field], headers)
+    params = (input_df[extract_field], headers)
+    transformed_df = function_handler('json_array_to_dataframe', params)
 
     # replace NaN with None
     output_df = output_df.where(pd.notnull(output_df), None)

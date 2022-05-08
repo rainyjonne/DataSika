@@ -1,5 +1,5 @@
 from . import configure
-from task_bypass.tasktypes.read.http_request import http_request, http_request_dynamic
+from .handler import function_handler
 import pytest
 import pandas as pd
 import vcr
@@ -33,9 +33,8 @@ def request_dynamic_setup():
 @pytest.mark.parametrize("db, input_df, output_df, pagination, mapping_fields, preserve_fields", request_dynamic_setup())
 @vcr.use_cassette("tests/cassettes/test_http_request_dynamic.yml", record_mode="new_episodes")
 def test_http_request_dynamic(db, input_df, output_df, pagination, mapping_fields, preserve_fields):
-    resp_df = http_request_dynamic(db, 'test_stage', 'test_id', input_df, preserve_fields, mapping_fields, pagination)
-    print(output_df)
-    print(resp_df)
+    params = (db, 'test_stage', 'test_id', input_df, preserve_fields, mapping_fields, pagination)
+    resp_df = function_handler('http_request_dynamic', params)
 
     # because api return different message in different calling times
     # so use columns & length to do the test
@@ -73,8 +72,8 @@ def request_setup():
 @pytest.mark.parametrize("db, input_df, output_df, extract_field, preserve_origin_data", request_setup())
 @vcr.use_cassette("tests/cassettes/test_http_request.yml", record_mode="new_episodes")
 def test_http_request(db, input_df, output_df, extract_field, preserve_origin_data):
-    resp_df = http_request(db, 'test_stage', 'test_id', input_df, extract_field, preserve_origin_data)
-
+    params = (db, 'test_stage', 'test_id', input_df, extract_field, preserve_origin_data)
+    resp_df = function_handler('http_request', params)
     # because api return different message in different calling times
     # so use columns & length to do the test
     assert list(output_df.columns) == list(resp_df.columns)
