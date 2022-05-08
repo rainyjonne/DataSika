@@ -4,3 +4,4 @@ __pycache__/
 *.db-journal
 *.sw[op]
 tests/test_csvs/outputs/run_tasks_compared*
+tests/test_csvs/outputs/run_tasks_2*
