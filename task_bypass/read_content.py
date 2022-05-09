@@ -86,17 +86,25 @@ def read_content(db, stage_name, task_id, inputs, function, _from_output = None)
     result_lists = []
     if 'user_input' in inputs:
         user_input = inputs['user_input']
-        extract_field = None
+        extract_field = 0  
         if 'extract_field' in user_input:
             extract_field = user_input['extract_field']
 
+        file_format = None
+        if 'file_format' in user_input:
+            file_format = user_input['file_format']
+
+        base_url = None
+        if 'base_url' in user_input:
+            base_url = user_input['base_url']
+
         if function == 'http-request':
-            if user_input['file_format'] == 'csv':
+            if file_format == 'csv':
                 if extract_field:
-                    input_df = pd.read_csv(user_input['file_name'])
+                    input_df = pd.read_csv(file_format)
                     rows = input_df[extract_field]
                 else:
-                    input_df = pd.read_csv(user_input['file_name'], header=None)
+                    input_df = pd.read_csv(file_format, header=None)
                     # default take index 0 column as input
                     rows = input_df[0]
                 ## NOTE
@@ -111,9 +119,19 @@ def read_content(db, stage_name, task_id, inputs, function, _from_output = None)
                     task_id: result_lists
                 }
 
+            if base_url:
+                params_df = pd.DataFrame([base_url])
+                result_df = http_request(db, stage_name, task_id, params_df)
+
+                result_lists.append(result_df)
+
+                return {
+                    task_id: result_lists
+                }
+
         if function == "http-request-dynamic":
             params_df = pd.DataFrame({
-                'base_url': [user_input['base_url']],
+                'base_url': [base_url],
             })
 
             fixed_items = user_input['params_fixed']
@@ -124,7 +142,7 @@ def read_content(db, stage_name, task_id, inputs, function, _from_output = None)
             for item in fixed_items:
                 params_df[item['name']] = item['value']
 
-            params_df['base_url'] = user_input['base_url']
+            params_df['base_url'] = base_url 
 
             if 'headers' in user_input:
                 params_df['headers'] = json.dumps(user_input['headers'])

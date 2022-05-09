@@ -1,0 +1,115 @@
+stages:
+  # 1) test for some repominer tasks
+  - id: get_gems_stage
+    description: "stages for get basic gem infos"
+    output_path: 'tests/test_csvs/outputs/run_tasks_1.csv'
+    tasks:
+      - id: get_gem_basic_infos  
+        description: "get basic infos for all gems"
+        type: read
+        function: http-request-dynamic
+        inputs:
+          user_input:
+            base_url: "https://rubygems.org/api/v1/search.json"
+            pagination:
+              name: page
+              start: 1
+              end: 2 
+            params_fixed:
+              - name: query
+                value: '*'
+      - id: filter_gem_names
+        description: "using jsonpath to filter out gem names"
+        type: filter
+        function: json-path 
+        inputs:
+          user_input:
+            field: '$..name' 
+          task_inputs:
+            - from: get_gem_basic_infos 
+              extract_field: text
+      - id: flatten_gem_lists 
+        description: "using flatten function to get a dataframe of gem names"
+        type: transform 
+        function: flatten-lists-to-dataframe 
+        inputs:
+          task_inputs:
+            - from: filter_gem_names 
+              extract_field: text
+      - id: rename_to_gem_names
+        description: "renamed 0 column into gem_names"
+        type: transform
+        function: rename-columns
+        inputs:
+          user_input:
+            fields: 
+              - 0: gem_names 
+          task_inputs:
+            - from: flatten_gem_lists
+      - id: concat_gem_names_dataframes 
+        description: "concat gem names dataframe"
+        type: concat 
+        function: concat
+        inputs:
+          task_inputs:
+            - from: rename_to_gem_names   
+  # 2) test for some airbnb tasks
+  - id: airbnb_stage
+    description: "stages for airbnb data"
+    output_path: 'tests/test_csvs/outputs/run_tasks_2.csv'
+    tasks:
+      - id: webscrap_airbnb
+        description: "get airbnb website page url"
+        type: read
+        function: http-request
+        inputs:
+          user_input:
+            base_url: 'http://insideairbnb.com/get-the-data/'
+      - id: extract_content
+        description: "get file links by xpath syntax"
+        type: filter
+        function: xpath
+        inputs:
+          user_input:
+            field: "//a[contains(@href, 'listings.csv.gz')][contains(@href, 'http')][contains(@href, 'china')]/@href"
+          task_inputs:
+            - from: webscrap_airbnb
+      # transform a dataframe into several dataframes
+      - id: create_city_dataframes
+        description: "put different city data into different dataframes"
+        type: transform
+        # may need better naming for function name
+        function: split-dataframe-rows
+        inputs:
+          task_inputs:
+            - from: extract_content
+      - id: request_listing_file
+        description: "request file link"
+        type: read
+        function: http-request
+        inputs:
+          task_inputs:
+            - from: create_city_dataframes
+      # HOOK
+      - id: decompress_file_str
+        description: "decompress file str"
+        type: transform
+        function: decompress
+        inputs:
+          task_inputs:
+            - from: request_listing_file
+      - id: read_csv_str_to_table
+        description: "read csv str to dataframe"
+        type: transform
+        function: transform-to-dataframe
+        inputs:
+          task_inputs:
+            - str_type: csv
+              from: decompress_file_str
+      - id: concat_airbnb_dataframes
+        description: "concat list of airbnb dataframes together"
+        type: concat
+        function: concat
+        inputs:
+          task_inputs:
+            - from: read_csv_str_to_table 

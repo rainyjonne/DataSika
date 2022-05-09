@@ -2,7 +2,7 @@
 
 from IPython import embed
 from task_bypass.run_stages import run_stages 
-from task_bypass.run_stages import allocate_stage_tasks 
+from task_bypass.allocate_stage_tasks import allocate_stage_tasks 
 from db.sql_db_handler import sql_db 
 import sqlite3
 import sys, yaml

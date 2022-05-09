@@ -1,7 +1,7 @@
+from .handler import function_handler
 import yaml
 import pytest
 import pandas as pd
-from task_bypass.tasktypes.merge.sql_merge import sql_merge 
 
 
 def merge_setup():
@@ -30,7 +30,8 @@ def merge_setup():
 
 @pytest.mark.parametrize("input_dfs, output_df, syntax", merge_setup())
 def test_sql_merge(input_dfs, output_df, syntax):
-    merged_df = sql_merge(input_dfs, syntax)
+    params = (input_dfs, syntax)
+    merged_df = function_handler('sql_merge', params)
 
     # replace NaN with None
     output_df = output_df.where(pd.notnull(output_df), None)
