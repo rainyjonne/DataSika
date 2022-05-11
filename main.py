@@ -34,6 +34,15 @@ db.createTable('_log', table_structure)
 final_output = run_stages(my_stages, pipeline_name, db)
 
 duration = time.time() - start_time
+
+# get final_df
+final_df = list(final_output.values())[0][0]
+
+# get some information for the final df
+final_df.info()
+
+# can use .head to see some sample data
+# final_df.head()
 embed()
 # show the results
 # final_output['concat_final_dataframes'][0]
