@@ -13,7 +13,7 @@ class sql_db:
       #          os.mkdir(path)
       #          logging.info(f"mkdir {path} successfully")
         try:
-            self.conn = sqlite3.connect(databaseName)
+            self.conn = sqlite3.connect(databaseName, timeout=10)
             self.c = self.conn.cursor()
             logging.info("Opened database successfully")
         except Exception as e:

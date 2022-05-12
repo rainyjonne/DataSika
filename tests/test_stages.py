@@ -1,13 +1,12 @@
 # this is the acceptance test for a simple pipeline
 from .handler import stages_handler
-from . import configure
+from . import DB 
 import yaml
 import pytest
 import pandas as pd
 import vcr
 
 
-db = configure()
 
 @vcr.use_cassette("tests/cassettes/test_stages.yml", record_mode="new_episodes")
 def test_stages():
@@ -16,7 +15,7 @@ def test_stages():
         stages = file['pipeline']['stages']
         pipeline_name = file['name']
 
-    params = (stages, pipeline_name, db)
+    params = (stages, pipeline_name, DB)
     final_df = stages_handler('run_stages', params) 
 
     compared_df = pd.read_csv('tests/test_csvs/outputs/run_stages.csv')

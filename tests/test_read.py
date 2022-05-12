@@ -1,11 +1,10 @@
-from . import configure
+from . import DB 
 from .handler import function_handler
 import pytest
 import pandas as pd
 import vcr
 import yaml
 
-db = configure()
 
 def request_dynamic_setup():
 
@@ -26,7 +25,7 @@ def request_dynamic_setup():
         input_df = pd.read_csv(input_file)
         output_df = pd.read_csv(output_file)
         
-        request_infos.append((db, input_df, output_df, pagination, mapping_fields, preserve_fields))
+        request_infos.append((DB, input_df, output_df, pagination, mapping_fields, preserve_fields))
 
     return request_infos
 
@@ -65,7 +64,7 @@ def request_setup():
         else:
             output_df = pd.read_csv(output_file)
 
-        request_infos.append((db, input_df, output_df, extract_field, preserve_origin_data))
+        request_infos.append((DB, input_df, output_df, extract_field, preserve_origin_data))
 
     return request_infos
 
