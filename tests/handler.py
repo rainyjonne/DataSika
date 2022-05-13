@@ -10,10 +10,14 @@ from task_bypass.tasktypes.transform.string_injecting import string_injecting
 from task_bypass.tasktypes.transform.rename_columns import rename_columns 
 from task_bypass.tasktypes.transform.transform_to_dataframe import transform_to_dataframe, json_array_to_dataframe 
 from task_bypass.run_stages import run_stages 
-from task_bypass.allocate_stage_tasks import allocate_stage_tasks 
+from task_bypass.allocate_stage_tasks import allocate_stage_tasks
+import asyncio
 
 def function_handler(function, params: tuple):
-    resp_df = globals()[function](*params)
+    if 'http_request' == function:
+        resp_df = asyncio.run(globals()[function](*params))
+    else:
+        resp_df = globals()[function](*params)
     return resp_df
 
 

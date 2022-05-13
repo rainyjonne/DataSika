@@ -1,9 +1,5 @@
 # http request function
 from datetime import datetime
-from concurrent.futures import as_completed
-from requests_futures.sessions import FuturesSession
-from requests.adapters import HTTPAdapter
-from urllib3.util.retry import Retry
 import asyncio, aiohttp
 from aiohttp_retry import RetryClient, ExponentialRetry
 import pandas as pd
@@ -57,7 +53,6 @@ async def http_request(db, stage_name, task_id, url_df, extract_field = 0, prese
         if not concurrent:
             response = loop.run_until_complete(response)  
 
-        #embed(using='asyncio')
         url = str(response.url)
         date_time = str(datetime.now())
         
@@ -105,6 +100,7 @@ async def http_request(db, stage_name, task_id, url_df, extract_field = 0, prese
         final_df = url_df.merge(resp_df, how="inner", on=extract_field) 
         final_df = final_df[[category]]
 
+    session.close() 
     return final_df
 
 

@@ -20,19 +20,20 @@ def request_dynamic_setup():
         pagination = file_info['pagination']
         mapping_fields = file_info['mapping_fields']
         preserve_fields = file_info['preserve_fields']
+        concurrent = file_info['concurrent']
 
         # create input & output dfs
         input_df = pd.read_csv(input_file)
         output_df = pd.read_csv(output_file)
         
-        request_infos.append((DB, input_df, output_df, pagination, mapping_fields, preserve_fields))
+        request_infos.append((DB, input_df, output_df, pagination, mapping_fields, preserve_fields, concurrent))
 
     return request_infos
 
-@pytest.mark.parametrize("db, input_df, output_df, pagination, mapping_fields, preserve_fields", request_dynamic_setup())
-@vcr.use_cassette("tests/cassettes/test_http_request_dynamic.yml", record_mode="new_episodes")
-def test_http_request_dynamic(db, input_df, output_df, pagination, mapping_fields, preserve_fields):
-    params = (db, 'test_stage', 'test_id', input_df, preserve_fields, mapping_fields, pagination)
+@pytest.mark.parametrize("db, input_df, output_df, pagination, mapping_fields, preserve_fields, concurrent", request_dynamic_setup())
+#@vcr.use_cassette("tests/cassettes/test_http_request_dynamic.yml", record_mode="new_episodes")
+def test_http_request_dynamic(db, input_df, output_df, pagination, mapping_fields, preserve_fields, concurrent):
+    params = (db, 'test_stage', 'test_id', input_df, preserve_fields, mapping_fields, pagination, concurrent)
     resp_df = function_handler('http_request_dynamic', params)
 
     # because api return different message in different calling times
@@ -54,6 +55,7 @@ def request_setup():
         output_file = file_info['output_file']
         extract_field = file_info['extract_field']
         preserve_origin_data = file_info['preserve_origin_data']
+        concurrent = file_info['concurrent']
 
         # create input & output dfs
         input_df = pd.read_csv(input_file)
@@ -64,14 +66,14 @@ def request_setup():
         else:
             output_df = pd.read_csv(output_file)
 
-        request_infos.append((DB, input_df, output_df, extract_field, preserve_origin_data))
+        request_infos.append((DB, input_df, output_df, extract_field, preserve_origin_data, concurrent))
 
     return request_infos
 
-@pytest.mark.parametrize("db, input_df, output_df, extract_field, preserve_origin_data", request_setup())
-@vcr.use_cassette("tests/cassettes/test_http_request.yml", record_mode="new_episodes")
-def test_http_request(db, input_df, output_df, extract_field, preserve_origin_data):
-    params = (db, 'test_stage', 'test_id', input_df, extract_field, preserve_origin_data)
+@pytest.mark.parametrize("db, input_df, output_df, extract_field, preserve_origin_data, concurrent", request_setup())
+#@vcr.use_cassette("tests/cassettes/test_http_request.yml", record_mode="new_episodes")
+def test_http_request(db, input_df, output_df, extract_field, preserve_origin_data, concurrent):
+    params = (db, 'test_stage', 'test_id', input_df, extract_field, preserve_origin_data, concurrent)
     resp_df = function_handler('http_request', params)
     # because api return different message in different calling times
     # so use columns & length to do the test
