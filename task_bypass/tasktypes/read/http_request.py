@@ -1,6 +1,7 @@
 # http request function
 from datetime import datetime
 from concurrent.futures import as_completed
+from requests import Session 
 from requests_futures.sessions import FuturesSession
 from requests.adapters import HTTPAdapter
 from urllib3.util.retry import Retry
@@ -12,10 +13,14 @@ from IPython import embed
 
 
 # set retries for avoiding request limits
-def session_configure(retries):
+def session_configure(retries, concurrent):
     # force retry when bumping into this code
     status_forcelist = [429]
-    session = FuturesSession()
+    if concurrent:
+        session = FuturesSession()
+    else:
+        session = Session() 
+        
     retry = Retry(
         total=retries,
         read=retries,
@@ -32,7 +37,7 @@ def session_configure(retries):
 
 
 # input: dataframe -> output: dataframe
-def http_request(db, stage_name, task_id, url_df, extract_field = 0, preserve_origin_data = False):
+def http_request(db, stage_name, task_id, url_df, extract_field = 0, preserve_origin_data = False, concurrent = False):
 
 
     # for test
@@ -53,12 +58,20 @@ def http_request(db, stage_name, task_id, url_df, extract_field = 0, preserve_or
         headers= json.loads(url_df['headers'][0])
 
     # set default retry for 3 times
-    session = session_configure(3)
-    futures = [session.get(url, headers=headers) for url in rows]
+    session = session_configure(3, concurrent)
+    if concurrent:
+        results = as_completed([session.get(url, headers=headers) for url in rows])
+    else:
+        results = rows
    
     resp_list = []
-    for future in as_completed(futures):
-        response = future.result()
+    for result in results:
+        if concurrent:
+            future = result
+            response = future.result()
+        else:
+            url = result
+            response = session.get(url, headers=headers) 
         url = response.url
         date_time = str(datetime.now())
         
@@ -111,7 +124,7 @@ def http_request(db, stage_name, task_id, url_df, extract_field = 0, preserve_or
 
 
 # input: a param dataframe -> output: prepared url dataframe
-def http_request_dynamic(db, stage_name, task_id, params_df, preserve_fields = None, mapping_fields = None, pagination = None):
+def http_request_dynamic(db, stage_name, task_id, params_df, preserve_fields = None, mapping_fields = None, pagination = None, concurrent = False):
     request_df = pd.DataFrame()
     base_url = params_df['base_url'][0]
     # default doesn't preserve origin data
@@ -157,7 +170,7 @@ def http_request_dynamic(db, stage_name, task_id, params_df, preserve_fields = N
     # reduce request numbers
     request_df = request_df.drop_duplicates(ignore_index=True)
 
-    result_df = http_request(db, stage_name, task_id, request_df, 'base_url', preserve_origin_data)
+    result_df = http_request(db, stage_name, task_id, request_df, 'base_url', preserve_origin_data, concurrent)
 
     return result_df
 

@@ -17,6 +17,7 @@ pipeline:
           type: read
           function: http-request
           inputs:
+            concurrent: true
             user_input:
               file_name: 'input.csv'
               file_format: csv
@@ -112,6 +113,7 @@ pipeline:
           type: read
           function: http-request-dynamic
           inputs:
+            concurrent: true
             user_input:
               base_url: "https://data.police.uk/api/crimes-street/all-crime"
               params_dynamic:

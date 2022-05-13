@@ -7,12 +7,26 @@ from IPython import embed
 
 def read_content(db, stage_name, task_id, inputs, function, _from_output = None):
     # for now all the read_content will do http_request related jobs
+    concurrent = False
+    if 'concurrent' in inputs:
+        concurrent = inputs['concurrent']
+
+    # if has input dataframes
+    dataframe_length = 1
+    if _from_output:
+        dataframe_length = len(_from_output)
+    # your input should be only one dataframe to do the concurrent tasks
+    # else would throw an error and prompt you to concat your list of dataframes to only list of only one dataframe
+    if concurrent and dataframe_length != 1:
+        raise ValueError(f"You can not run concurrent http request tasks on `list that contains over 1 dataframe`, please concat your dataframes first. #ref: {task_id}")
+
+
 
     if 'task_inputs' in inputs:
         task_input = inputs['task_inputs'][0]
         if function == 'http-request':
             result_lists = []
-            extract_field = None
+            extract_field = 0
             if 'extract_field' in task_input:
                 extract_field = task_input['extract_field']
 
@@ -21,14 +35,8 @@ def read_content(db, stage_name, task_id, inputs, function, _from_output = None)
                 preserve_origin_data = task_input['preserve_origin_data']
 
             for single_df in _from_output:
-                if extract_field:
-                    # each of single df will produce a df in return
-                    result_df = http_request(db, stage_name, task_id, single_df, extract_field, preserve_origin_data)
+                result_df = http_request(db, stage_name, task_id, single_df, extract_field, preserve_origin_data, concurrent)
 
-                # no specific extract field
-                else:
-                    # each of extract df will produce a df in return
-                    result_df = http_request(db, stage_name, task_id, single_df, preserve_origin_data=preserve_origin_data)
 
                 # add dataframe into lists (produce list of dataframes)
                 result_lists.append(result_df)
@@ -75,7 +83,7 @@ def read_content(db, stage_name, task_id, inputs, function, _from_output = None)
                     till = user_input['pagination']['till']
                     params_df[page_name] = till
 
-                result_df = http_request_dynamic(db, stage_name, task_id, params_df, preserve_fields, mapping_fields, page_name)
+                result_df = http_request_dynamic(db, stage_name, task_id, params_df, preserve_fields, mapping_fields, page_name, concurrent)
 
                 result_lists.append(result_df)
 
@@ -93,6 +101,7 @@ def read_content(db, stage_name, task_id, inputs, function, _from_output = None)
         file_format = None
         if 'file_format' in user_input:
             file_format = user_input['file_format']
+            file_name = user_input['file_name']
 
         base_url = None
         if 'base_url' in user_input:
@@ -101,17 +110,17 @@ def read_content(db, stage_name, task_id, inputs, function, _from_output = None)
         if function == 'http-request':
             if file_format == 'csv':
                 if extract_field:
-                    input_df = pd.read_csv(file_format)
+                    input_df = pd.read_csv(file_name)
                     rows = input_df[extract_field]
                 else:
-                    input_df = pd.read_csv(file_format, header=None)
+                    input_df = pd.read_csv(file_name, header=None)
                     # default take index 0 column as input
                     rows = input_df[0]
                 ## NOTE
                 for row in rows:
                     # each of url df will produce a str df in return
                     row_df = pd.DataFrame([row])
-                    result_df = http_request(db, stage_name, task_id, row_df)
+                    result_df = http_request(db, stage_name, task_id, row_df, concurrent=concurrent)
                     # add dataframe into lists (produce list of dataframes)
                     result_lists.append(result_df)
 
@@ -121,7 +130,7 @@ def read_content(db, stage_name, task_id, inputs, function, _from_output = None)
 
             if base_url:
                 params_df = pd.DataFrame([base_url])
-                result_df = http_request(db, stage_name, task_id, params_df)
+                result_df = http_request(db, stage_name, task_id, params_df, concurrent=concurrent)
 
                 result_lists.append(result_df)
 
@@ -154,7 +163,7 @@ def read_content(db, stage_name, task_id, inputs, function, _from_output = None)
                 end = user_input['pagination']['end']
                 params_df[page_name] = f"[{start}, {end}]"
 
-            result_df = http_request_dynamic(db, stage_name, task_id, params_df, preserve_fields, mapping_fields, page_name)
+            result_df = http_request_dynamic(db, stage_name, task_id, params_df, preserve_fields, mapping_fields, page_name, concurrent)
 
             result_lists.append(result_df)
 
