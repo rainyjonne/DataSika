@@ -4,37 +4,31 @@ from concurrent.futures import as_completed
 from requests_futures.sessions import FuturesSession
 from requests.adapters import HTTPAdapter
 from urllib3.util.retry import Retry
+import asyncio, aiohttp
+from aiohttp_retry import RetryClient, ExponentialRetry
 import pandas as pd
 import numpy as np
 import json
 import ast
 from IPython import embed
+import nest_asyncio
+nest_asyncio.apply()
 
-
-# set retries for avoiding request limits
-def session_configure(retries):
-    # force retry when bumping into this code
-    status_forcelist = [429]
-    session = FuturesSession()
-    retry = Retry(
-        total=retries,
-        read=retries,
-        connect=retries,
-        respect_retry_after_header=True,
-        status_forcelist=status_forcelist,
-    )
-
-    adapter = HTTPAdapter(max_retries=retry)
-    session.mount('http://', adapter)
-    session.mount('https://', adapter)
-
-    return session
+def session_configure():
+    # set default retry for 3 times
+    retry_options = ExponentialRetry(attempts=3)
+    retry_session = RetryClient(raise_for_status=False, retry_options=retry_options)
+    return retry_session
+    
+session = session_configure()
+async def call_request(url, headers):
+    return await session.get(url, headers=headers) 
 
 
 # input: dataframe -> output: dataframe
-def http_request(db, stage_name, task_id, url_df, extract_field = 0, preserve_origin_data = False):
+async def http_request(db, stage_name, task_id, url_df, extract_field = 0, preserve_origin_data = False, concurrent = False):
 
-
+    #embed(using='asyncio')
     # for test
     if len(url_df.index) > 1000:
         #url_df = url_df.sample(n=10)
@@ -52,22 +46,27 @@ def http_request(db, stage_name, task_id, url_df, extract_field = 0, preserve_or
         # presume every row has same headers setting
         headers= json.loads(url_df['headers'][0])
 
-    # set default retry for 3 times
-    session = session_configure(3)
-    futures = [session.get(url, headers=headers) for url in rows]
+    if concurrent: 
+        responses = await asyncio.gather(*[call_request(url, headers) for url in rows])
+    else:
+        loop = asyncio.get_event_loop()
+        responses  = [call_request(url, headers) for url in rows]
    
     resp_list = []
-    for future in as_completed(futures):
-        response = future.result()
-        url = response.url
+    for response in responses:
+        if not concurrent:
+            response = loop.run_until_complete(response)  
+
+        #embed(using='asyncio')
+        url = str(response.url)
         date_time = str(datetime.now())
         
-        status_code = response.status_code
+        status_code = response.status
         if status_code >= 400:
             level = "ERROR"
         else:
             level = "INFO"
-        error_mesg = f"{status_code}: {response.text}"
+        error_mesg = f"{status_code}: {response.text()}"
 
 
         table_values = f""" 
@@ -86,11 +85,11 @@ def http_request(db, stage_name, task_id, url_df, extract_field = 0, preserve_or
         if 'application/x-gzip' in content_type:
             # return bytes if the file hasn't been decompress yet
             category = "binary"
-            response_ret = response.content
+            response_ret = await response.read()
         else:
             # otherwise return pure text
             category = "text"
-            response_ret = response.text
+            response_ret = await response.text()
 
         filtered_resp = (url, response_ret, status_code, date_time)
         resp_list.append(filtered_resp)
@@ -106,12 +105,11 @@ def http_request(db, stage_name, task_id, url_df, extract_field = 0, preserve_or
         final_df = url_df.merge(resp_df, how="inner", on=extract_field) 
         final_df = final_df[[category]]
 
-    
     return final_df
 
 
 # input: a param dataframe -> output: prepared url dataframe
-def http_request_dynamic(db, stage_name, task_id, params_df, preserve_fields = None, mapping_fields = None, pagination = None):
+def http_request_dynamic(db, stage_name, task_id, params_df, preserve_fields = None, mapping_fields = None, pagination = None, concurrent = False):
     request_df = pd.DataFrame()
     base_url = params_df['base_url'][0]
     # default doesn't preserve origin data
@@ -157,7 +155,7 @@ def http_request_dynamic(db, stage_name, task_id, params_df, preserve_fields = N
     # reduce request numbers
     request_df = request_df.drop_duplicates(ignore_index=True)
 
-    result_df = http_request(db, stage_name, task_id, request_df, 'base_url', preserve_origin_data)
+    result_df = asyncio.run(http_request(db, stage_name, task_id, request_df, 'base_url', preserve_origin_data, concurrent=concurrent))
 
     return result_df
 

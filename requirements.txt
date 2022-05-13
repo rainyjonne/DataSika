@@ -17,3 +17,6 @@ requests-futures==1.0.0
 pytest==7.1.2
 pytest-vcr==1.0.2
 pytest-mock==3.7.0
+aiohttp==3.8.1
+asyncio==3.4.3
+aiohttp-retry==2.4.6

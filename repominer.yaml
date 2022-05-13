@@ -18,6 +18,7 @@ pipeline:
           type: read
           function: http-request-dynamic
           inputs:
+            concurrent: true
             user_input:
               base_url: "https://rubygems.org/api/v1/search.json"
               pagination:
@@ -88,6 +89,7 @@ pipeline:
           type: read 
           function: http-request
           inputs:
+            concurrent: true
             task_inputs:
               - from: replace_gem_name_in_apis 
                 preserve_origin_data: True
