@@ -73,7 +73,7 @@ A simple python package that reads in your yaml syntax file and produce a data p
     - Your project environment would be set to that version of python automatically.
   - Wrap your module **(This part is super important!)**
     - Find your path under the `yaml-pipeline-generator` folder by execute `pwd` (e.g./Users/yanyu/Desktop/work/yaml-pipeline-generator)
-    - Copy the path you found by pwd, and execute this command in terminal: `echo 'export PYTHONPATH="${PYTHONPATH}:<the path you found by pwd>'" >> <~/.zshrc or ~/.bashrc>"`
+    - Copy the path you found by pwd, and execute this command in terminal: `echo 'export PYTHONPATH="${PYTHONPATH}:<the path you found by pwd>"' >> <~/.zshrc or ~/.bashrc>`
     - Restart the shell: `exec "$SHELL"
     - Check the python version is ok or not by execute this: `which python`, if it's the right version, go ahead! 
   
