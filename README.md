@@ -1,12 +1,14 @@
-# Compatibility of python versions
-## python versions
+# Yaml Pipeline Generator
+A simple python package that reads in your yaml syntax file and produce a data pipeline for you.
+## Compatibility of python versions
+### python versions
 - 3.7.13
 - 3.8.13
 - 3.9.11
-# Environment SetUp
-## [Install python directly](https://www.python.org/downloads/)
+## Environment SetUp
+### [Install python directly](https://www.python.org/downloads/)
 
-## Using [pyenv](https://github.com/pyenv/pyenv)
+### Using [pyenv](https://github.com/pyenv/pyenv)
 - [Install pyenv](https://github.com/pyenv/pyenv#installation)
   - macOS: 
 	1. `brew update`
@@ -51,7 +53,7 @@
   - Put `<your-virtual-env-name>` in to the `.python-version` file's first line, the environment will automatically change your environment to this virtual environment you just made. 
   - (Optional) If you want to deactivate your environment: `pyenv deactive <your-virtual-env-name>`
  
-# Install require packages
+## Install require packages
 - [Install `pip`](https://pip.pypa.io/en/stable/installation/)
   - macOS: `python -m ensurepip --upgrade`
   - WSL, Linux: `python -m ensurepip --upgrade`
@@ -59,7 +61,7 @@
 - Install other require packages
   - Execute this command in terminal: `pip install -r requirements.txt`
 
-# Running examples
+## Running examples
 - Making this package's command line tool works: `python setup.py install`
 - Running two examples:
   - Using command line tools:
