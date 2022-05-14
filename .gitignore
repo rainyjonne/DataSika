@@ -3,5 +3,7 @@ __pycache__/
 *.db
 *.db-journal
 *.sw[op]
+.DS_Store
+.python-version
 tests/test_csvs/outputs/run_tasks_compared*
 tests/test_csvs/outputs/run_tasks_2*

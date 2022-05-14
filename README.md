@@ -71,11 +71,12 @@ A simple python package that reads in your yaml syntax file and produce a data p
     - Set this python version as your default python version: `pyenv global 3.x.x`
     - Change the `.python-version` file in the project root, add in the python version on the first line in the `.python-version` file: `3.x.x`, you can do it by execute this command: `echo 3.x.x >> .python-version`.
     - Your project environment would be set to that version of python automatically.
-  - Wrap your module **(This part is super important!)**
-    - Find your path under the `yaml-pipeline-generator` folder by execute `pwd` (e.g./Users/yanyu/Desktop/work/yaml-pipeline-generator)
-    - Copy the path you found by pwd, and execute this command in terminal: `echo 'export PYTHONPATH="${PYTHONPATH}:<the path you found by pwd>"' >> <~/.zshrc or ~/.bashrc>`
-    - Restart the shell: `exec "$SHELL"
-    - Check the python version is ok or not by execute this: `which python`, if it's the right version, go ahead! 
+###  Wrap your module **(This part is super important!)**
+  - Find your path under the `yaml-pipeline-generator` folder by execute `pwd` (e.g./Users/yanyu/Desktop/work/yaml-pipeline-generator)
+  - Copy the path you found by pwd, and execute this command in terminal: `echo 'export PYTHONPATH="${PYTHONPATH}:<the path you found by pwd>"' >> <~/.zshrc or ~/.bashrc>`
+  - Create db output folder: `mkdir yaml_pipeline_generator/db/outputs`
+  - Restart the shell: `source <~/.zshrc or ~/.bashrc>`
+  - Check the python version is ok or not by execute this: `which python`, if it's the right version, go ahead! 
   
  
 ## Install require packages
