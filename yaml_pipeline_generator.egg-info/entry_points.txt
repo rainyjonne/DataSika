@@ -1,0 +1,3 @@
+[console_scripts]
+yml-gen = yaml_pipeline_generator.main:main
+

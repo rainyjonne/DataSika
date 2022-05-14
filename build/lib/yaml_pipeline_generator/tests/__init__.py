@@ -1,11 +1,11 @@
-from yaml_pipeline_generator.db.sql_db_handler import sql_db 
-from yaml_pipeline_generator.task_bypass.tasktypes.transform import *
-from yaml_pipeline_generator.task_bypass.tasktypes.merge import *
+from db.sql_db_handler import sql_db 
+from task_bypass.tasktypes.transform import *
+from task_bypass.tasktypes.merge import *
 
 
 def configure():
     # Create your db connection.
-    db = sql_db(f'yaml_pipeline_generator/db/outputs/test.db')
+    db = sql_db(f'db/outputs/test.db')
     # Drop tables inside test db
     db.dropAllTables()
     table_structure = """

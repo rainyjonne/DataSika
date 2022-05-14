@@ -19,7 +19,7 @@ pipeline:
           inputs:
             concurrent: true
             user_input:
-              file_name: 'input.csv'
+              file_name: 'examples/input.csv'
               file_format: csv
               # value: 'http://insideairbnb.com/get-thedata.html' (inside the csv file)
         - id: extract_content
