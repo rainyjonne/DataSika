@@ -91,9 +91,9 @@ A simple python package that reads in your yaml syntax file and produce a data p
 - Making this package's command line tool works: `python setup.py install`
 - Running two examples:
   - Using command line tools:
-    1. Airbnb + Crime Data Example: `yml-gen --input examples/airbnb_pipeline.yaml`
-    2. Ruby Gems RepoMiner Example: `yml-gen --input examples/repominer.yaml`
+    1. Ruby Gems RepoMiner Example: `yml-gen --input examples/repominer.yaml`
+    2. Airbnb + Crime Data Example: `yml-gen --input examples/airbnb_pipeline.yaml`
   - Using python scripts:
-    1. Airbnb + Crime Data Example: `python yaml_pipeline_generator/main.py --input examples/airbnb_pipeline.yaml`
-    2. Ruby Gems RepoMiner Example: `python yaml_pipeline_generator/main.py --input examples/repominer.yaml`
+    1. Ruby Gems RepoMiner Example: `python yaml_pipeline_generator/main.py --input examples/repominer.yaml`
+    2. Airbnb + Crime Data Example: `python yaml_pipeline_generator/main.py --input examples/airbnb_pipeline.yaml`
 
