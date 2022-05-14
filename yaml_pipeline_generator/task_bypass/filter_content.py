@@ -2,9 +2,9 @@
 ## NOTE: might need to think of some parrellal solutions for this function
 
 import pandas as pd 
-from task_bypass.tasktypes.filter.xpath import xpath
-from task_bypass.tasktypes.filter.sql import sql
-from task_bypass.tasktypes.filter.json_path import json_path
+from yaml_pipeline_generator.task_bypass.tasktypes.filter.xpath import xpath
+from yaml_pipeline_generator.task_bypass.tasktypes.filter.sql import sql
+from yaml_pipeline_generator.task_bypass.tasktypes.filter.json_path import json_path
 
 def filter_content(task_id, inputs,  function, _from_output, _last_output_name):
     # presetting

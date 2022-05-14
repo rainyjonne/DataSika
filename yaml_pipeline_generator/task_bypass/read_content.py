@@ -2,7 +2,7 @@
 ## read content based on user & task inputs
 ## NOTE: might need to think of some parrellal solutions for this function
 import pandas as pd
-from task_bypass.tasktypes.read.http_request import http_request, http_request_dynamic 
+from yaml_pipeline_generator.task_bypass.tasktypes.read.http_request import http_request, http_request_dynamic 
 from IPython import embed
 
 def read_content(db, stage_name, task_id, inputs, function, _from_output = None):

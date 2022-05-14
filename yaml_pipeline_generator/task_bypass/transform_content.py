@@ -5,12 +5,12 @@
 import pandas as pd
 import json
 from functools import reduce
-from task_bypass.tasktypes.transform.decompress_content import decompress_content
-from task_bypass.tasktypes.transform.transform_to_dataframe import transform_to_dataframe, json_array_to_dataframe
-from task_bypass.tasktypes.transform.rename_columns import rename_columns
-from task_bypass.tasktypes.transform.split_dataframe_rows import split_dataframe_rows 
-from task_bypass.tasktypes.transform.flatten_lists_to_dataframe import flatten_lists_to_dataframe 
-from task_bypass.tasktypes.transform.string_injecting import string_injecting 
+from yaml_pipeline_generator.task_bypass.tasktypes.transform.decompress_content import decompress_content
+from yaml_pipeline_generator.task_bypass.tasktypes.transform.transform_to_dataframe import transform_to_dataframe, json_array_to_dataframe
+from yaml_pipeline_generator.task_bypass.tasktypes.transform.rename_columns import rename_columns
+from yaml_pipeline_generator.task_bypass.tasktypes.transform.split_dataframe_rows import split_dataframe_rows 
+from yaml_pipeline_generator.task_bypass.tasktypes.transform.flatten_lists_to_dataframe import flatten_lists_to_dataframe 
+from yaml_pipeline_generator.task_bypass.tasktypes.transform.string_injecting import string_injecting 
 
 def transform_content(task_id, inputs, function, _from_output):
     # presetting

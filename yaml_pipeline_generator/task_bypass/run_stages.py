@@ -2,7 +2,7 @@
 from itertools import cycle
 from functools import reduce
 import sqlite3
-from task_bypass.allocate_stage_tasks import allocate_stage_tasks
+from yaml_pipeline_generator.task_bypass.allocate_stage_tasks import allocate_stage_tasks
 
 
 def run_stages(stages, pipeline_name, db, done_stages={}):

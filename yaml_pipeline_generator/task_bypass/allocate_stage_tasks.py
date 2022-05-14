@@ -1,8 +1,8 @@
 # stage(tasks) function 
 from itertools import cycle
-from task_bypass.categorize_task import categorize_task
-from task_bypass.merge_tasks import merge_tasks
-from task_bypass.helpers import task_length_sanity_check, concat_task_length_sanity_check, split_task_length_sanity_check
+from yaml_pipeline_generator.task_bypass.categorize_task import categorize_task
+from yaml_pipeline_generator.task_bypass.merge_tasks import merge_tasks
+from yaml_pipeline_generator.task_bypass.helpers import task_length_sanity_check, concat_task_length_sanity_check, split_task_length_sanity_check
 
 #NEW
 # stage(tasks) function 
