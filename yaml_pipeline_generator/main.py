@@ -55,3 +55,6 @@ def main():
     embed()
     # show the results
     # final_output['concat_final_dataframes'][0]
+
+if __name__ == '__main__':
+    main()
