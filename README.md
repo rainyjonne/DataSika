@@ -6,6 +6,9 @@ A simple python package that reads in your yaml syntax file and produce a data p
 - 3.8.13
 - 3.9.11
 ## Environment SetUp
+### Clone this project
+`git clone git@github.com:rainyjonne/yaml-pipeline-generator.git`
+
 ### [Install python directly](https://www.python.org/downloads/)
 
 ### Using [pyenv](https://github.com/pyenv/pyenv)
