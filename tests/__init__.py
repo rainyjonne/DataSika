@@ -3,7 +3,7 @@ from sika.db.sql_db_handler import sql_db
 
 def configure():
     # Create your db connection.
-    db = sql_db(f'sika/db/outputs/test.db')
+    db = sql_db(f'sika/db/test.db')
     # Drop tables inside test db
     db.dropAllTables()
     # Create logging table for tasks

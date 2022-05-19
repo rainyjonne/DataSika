@@ -8,10 +8,12 @@ from sika.db.sql_db_handler import sql_db
 import sqlite3
 import sys, yaml
 import time
+import os
 
 def setting_args():
     parser = argparse.ArgumentParser(prog = 'sika', description = 'Build a simple pipeline by a yaml file')
     parser.add_argument('--input', help="put in an input yaml file path", type=str)
+    parser.add_argument('--output', help="put a path for your output db", default='.', type=str)
     if len(sys.argv) == 1:
         parser.print_help(sys.stderr)
         sys.exit(1)
@@ -29,7 +31,8 @@ def main():
         pipeline_name = file['name']
     
     # Create your db connection.
-    db = sql_db(f'sika/db/outputs/{pipeline_name}.db')
+    db_path = os.path.join(args.output, f'{pipeline_name}.db') 
+    db = sql_db(db_path)
     # Create logging table for tasks
     task_logging_table_structure = """
                 'level' TEXT NOT NULL,
