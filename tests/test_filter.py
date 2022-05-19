@@ -2,6 +2,8 @@ from .handler import function_handler
 import yaml
 import pytest
 import pandas as pd
+import numpy as np
+from packaging import version
 
 
 def filter_setup(function):
@@ -116,8 +118,12 @@ def test_sql(input_df, output_df, syntax, last_output_name):
     filtered_df = filtered_df.round(2)
 
     # replace NaN with None
-    output_df = output_df.where(pd.notnull(output_df), None)
-    filtered_df = filtered_df.where(pd.notnull(filtered_df), None)
+    if version.parse(pd.__version__) >= version.parse('1.3.0'):
+        output_df = output_df.replace({np.nan: None})
+        filtered_df = filtered_df.replace({np.nan: None})
+    else:
+        output_df = output_df.where(pd.notnull(output_df), None)
+        filtered_df = filtered_df.where(pd.notnull(filtered_df), None)
 
     # compare values
     assert (output_df.values ==  filtered_df.values).all()

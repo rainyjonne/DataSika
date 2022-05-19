@@ -2,6 +2,8 @@ from .handler import function_handler
 import yaml
 import pytest
 import pandas as pd
+import numpy as np
+from packaging import version
 
 
 def transform_setup(function):
@@ -154,8 +156,13 @@ def test_transform_to_dataframe(input_df, output_df, str_type):
     transformed_df = transformed_df.round(2)
 
     # replace NaN with None
-    output_df = output_df.where(pd.notnull(output_df), None)
-    transformed_df = transformed_df.where(pd.notnull(transformed_df), None)
+    if version.parse(pd.__version__) >= version.parse('1.3.0'):
+        output_df = output_df.replace({np.nan: None})
+        transformed_df = transformed_df.replace({np.nan: None})
+    else:
+        output_df = output_df.where(pd.notnull(output_df), None)
+        transformed_df = transformed_df.where(pd.notnull(filtered_df), None)
+
 
     # compare values
     assert (output_df.values ==  transformed_df.values).all()
@@ -227,8 +234,12 @@ def test_json_array_to_dataframe(input_df, output_df, extract_field, headers):
     transformed_df = function_handler('json_array_to_dataframe', params)
 
     # replace NaN with None
-    output_df = output_df.where(pd.notnull(output_df), None)
-    transformed_df = transformed_df.where(pd.notnull(transformed_df), None)
+    if version.parse(pd.__version__) >= version.parse('1.3.0'):
+        output_df = output_df.replace({np.nan: None})
+        transformed_df = transformed_df.replace({np.nan: None})
+    else:
+        output_df = output_df.where(pd.notnull(output_df), None)
+        transformed_df = transformed_df.where(pd.notnull(filtered_df), None)
 
     # compare values
     assert (output_df.values ==  transformed_df.values).all()
