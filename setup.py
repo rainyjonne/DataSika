@@ -7,7 +7,7 @@ long_description = 'This is a package which allows you to create a simple data p
   
 setup(
         name ='DataSika',
-        version ='1.0.0',
+        version ='1.0.1',
         author ='rainyjonne',
         author_email ='rainyjonne@gmail.com',
         url ='https://github.com/rainyjonne/DataSika',
@@ -18,7 +18,7 @@ setup(
         long_description = long_description,
         long_description_content_type="text/markdown",
         license='MIT',
-        packages=['sika', 'sika.db', 'sika.task_bypass'],
+        packages=find_packages(),
         entry_points={
             'console_scripts': [
                 'sika = sika.main:main'
