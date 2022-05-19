@@ -35,8 +35,9 @@ class sql_db:
 
     def insert(self, tableName, question_marks, replace_content):
         self.dbsql = f"INSERT INTO {tableName} VALUES ({question_marks})"
-        logging.info(f"DB sql: {self.dbsql} & {replace_content[0:4]}")
-        result = self.c.execute(self.dbsql, replace_content)
+        logging.info(f"DB sql: {self.dbsql} & {replace_content}")
+        self.c.execute(self.dbsql, replace_content)
+        result = self.conn.commit()
         return result
 
     def dropTable(self, tableName):

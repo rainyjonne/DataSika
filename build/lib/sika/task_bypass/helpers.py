@@ -1,3 +1,51 @@
+from datetime import datetime
+import time
+import json
+from IPython import embed
+
+def logging_task_output_info(stage_name, task, _output, db):
+    task_name = task['id']
+    task_type = task['type']
+    task_function = task['function']
+    level = "INFO"
+    output_content = _output[task_name]
+    output_nums = len(_output)
+    error_message = ''
+
+    # output didn't produce anything
+    #if output_nums == 0:
+    #    level = 'ERROR'
+    #    error_message = 'Your task produce empty output. There might be something wrong with the source data, please checkout out your requesting urls/files or other source data are still available.' 
+    #    date_time = str(datetime.now())
+    #    # logging
+    #    db.insert('_task_log', "?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?", (level, stage_name, task_name, task_type, task_function, output_nums, '', '', date_time, error_message, ''))
+
+    # output produce all empty dataframes
+    if all(len(df.index) == 0 for df in output_content):
+        level = 'ERROR'
+        error_message = 'Your task produces empty dataframes. There might be something wrong with the source data, please checkout out your requesting urls/files or other source data are still available.' 
+        date_time = str(datetime.now())
+        # logging
+        db.insert('_task_log', "?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?", (level, stage_name, task_name, task_type, task_function, output_nums, '', '', date_time, error_message, ''))
+        embed()
+        # break the pipeline
+        raise ValueError(error_message)
+
+    # if any output dataframe is empty, record an warning message 
+    if any(len(df.index) == 0 for df in output_content):
+        level = 'WARNING'
+        error_message = 'Your task output contains empty dataframes. If something goes wrong on the consecutive tasks, please checkout your input source data for trouble shooting.' 
+
+    # get the columns of dataframes 
+    columns = json.dumps([list(single_df.columns) if len(single_df.index) != 0 else [''] for single_df in output_content])
+    # count each output df in output lists' row numbers
+    row_nums = json.dumps([len(single_df.index) for single_df in output_content])
+
+    date_time = str(datetime.now())
+    # logging
+    db.insert('_task_log', "?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?", (level, stage_name, task_name, task_type, task_function, output_nums, columns, row_nums, date_time, error_message, ''))
+
+
 
 def task_length_sanity_check(_input, _output, task_id):
     # _input is a list of dataframes

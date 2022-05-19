@@ -8,10 +8,15 @@ from sika.db.sql_db_handler import sql_db
 import sqlite3
 import sys, yaml
 import time
+import os
 
 def setting_args():
     parser = argparse.ArgumentParser(prog = 'sika', description = 'Build a simple pipeline by a yaml file')
-    parser.add_argument('--input', help="put in an input yaml file path", type=str) 
+    parser.add_argument('--input', help="put in an input yaml file path", type=str)
+    parser.add_argument('--output', help="put a path for your output db", default='.', type=str)
+    if len(sys.argv) == 1:
+        parser.print_help(sys.stderr)
+        sys.exit(1)
     return parser.parse_args()
 
 def main():
@@ -26,17 +31,35 @@ def main():
         pipeline_name = file['name']
     
     # Create your db connection.
-    db = sql_db(f'sika/db/outputs/{pipeline_name}.db')
-    table_structure = """
+    db_path = os.path.join(args.output, f'{pipeline_name}.db') 
+    db = sql_db(db_path)
+    # Create logging table for tasks
+    task_logging_table_structure = """
                 'level' TEXT NOT NULL,
                 'stage_name' TEXT NOT NULL,
                 'task_name' TEXT NOT NULL,
+                'task_type' TEXT NOT NULL,
+                'task_function' TEXT NOT NULL,
+                'output_nums' INTEGER NOT NULL,
+                'columns' TEXT NOT NULL,
+                'row_nums' TEXT NOT NULL,
                 'date_time' TEXT NOT NULL,
                 'error_message' TEXT,
                 'other_info' TEXT
                 """
-    # Create logging table
-    db.createTable('_log', table_structure) 
+    db.createTable('_task_log', task_logging_table_structure) 
+    # Create logging table for http requests
+    request_logging_table_structure = """
+                'level' TEXT NOT NULL,
+                'status_code' INTEGER NOT NULL,
+                'stage_name' TEXT NOT NULL,
+                'task_name' TEXT NOT NULL,
+                'base_url' TEXT NOT NULL,
+                'date_time' TEXT NOT NULL,
+                'error_message' TEXT,
+                'other_info' TEXT
+                """
+    db.createTable('_request_log', request_logging_table_structure) 
     
     
     # get stages

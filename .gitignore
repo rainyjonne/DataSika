@@ -5,5 +5,3 @@ __pycache__/
 *.sw[op]
 .DS_Store
 .python-version
-tests/test_csvs/outputs/run_tasks_compared*
-tests/test_csvs/outputs/run_tasks_2*
