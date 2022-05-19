@@ -11,7 +11,10 @@ import time
 
 def setting_args():
     parser = argparse.ArgumentParser(prog = 'sika', description = 'Build a simple pipeline by a yaml file')
-    parser.add_argument('--input', help="put in an input yaml file path", type=str) 
+    parser.add_argument('--input', help="put in an input yaml file path", type=str)
+    if len(sys.argv) == 1:
+        parser.print_help(sys.stderr)
+        sys.exit(1)
     return parser.parse_args()
 
 def main():
