@@ -1,4 +1,4 @@
-name: test-repo-miner 
+name: repo-miner 
 schedule:
   # every month's first day
   - cron: "0 0 1 * *"
@@ -18,6 +18,7 @@ pipeline:
           type: read
           function: http-request-dynamic
           inputs:
+            concurrent: true
             user_input:
               base_url: "https://rubygems.org/api/v1/search.json"
               pagination:
@@ -81,13 +82,14 @@ pipeline:
               inject_str:
                 - name: gem_name 
                   value: gem_names
-            task_inputs:
-              - from: concat_gem_names_dataframes
+            stage_inputs:
+              - from: get_gems_stage 
         - id: call_gem_apis  
           description: "call gem apis"
           type: read 
           function: http-request
           inputs:
+            concurrent: true
             task_inputs:
               - from: replace_gem_name_in_apis 
                 preserve_origin_data: True
@@ -122,8 +124,8 @@ pipeline:
           inputs:
             user_input:
               field: '$["name", "downloads", "version", "version_downloads", "platform", "authors", "info", "licenses", "metadata", "sha", "project_uri", "gem_uri", "homepage_uri", "wiki_uri", "documentation_uri", "mailing_list_uri", "source_code_uri", "bug_tracker_uri", "changelog_uri"]' 
-            task_inputs:
-              - from: concat_call_gem_api_dataframes 
+            stage_inputs:
+              - from: call_gem_api_stage 
                 extract_field: body
         - id: read_json_path_str_to_table
           description: "read json str to dataframe"
@@ -165,23 +167,23 @@ pipeline:
             user_input:
               field: "
                     SELECT
-                      concat_call_gem_api_dataframes.gem_name as gem_name,
-                      concat_call_gem_api_dataframes.update_time as update_time,
+                      call_gem_api_stage.gem_name as gem_name,
+                      call_gem_api_stage.update_time as update_time,
                       `downloads`, `version`, `version_downloads`,
                       `platform`, `authors`, `info`,
                       `licenses_transformed` as licenses, `metadata`,
                       `sha`, `project_uri`, `gem_uri`, `homepage_uri`,
                       `wiki_uri`, `documentation_uri`, `mailing_list_uri`,
                       `source_code_uri`, `bug_tracker_uri`, `changelog_uri`
-                    FROM concat_filter_gem_info_dataframes
-                    INNER JOIN  concat_call_gem_api_dataframes
+                    FROM filter_gem_info_stage
+                    INNER JOIN  call_gem_api_stage
                       ON (
-                        concat_filter_gem_info_dataframes.gem_name = concat_call_gem_api_dataframes.gem_name
+                       filter_gem_info_stage.gem_name = call_gem_api_stage.gem_name
                       )
                   "
-            task_inputs:
-              - from: concat_call_gem_api_dataframes
-              - from: concat_filter_gem_info_dataframes
+            stage_inputs:
+              - from: call_gem_api_stage 
+              - from: filter_gem_info_stage
         - id: concat_final_dataframes
           description: "concat list of final dataframes together"
           type: concat

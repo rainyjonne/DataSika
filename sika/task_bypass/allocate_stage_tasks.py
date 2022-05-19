@@ -22,8 +22,8 @@ def allocate_stage_tasks(stage_name, tasks, db, done_tasks={}):
         if 'logging' in task:
             logging = task['logging']
 
-        # check if it's the first task
-        if 'task_inputs' not in task['inputs']:
+        # check if it's the first task of the pipeline
+        if 'task_inputs' not in task['inputs'] and 'stage_inputs' not in task['inputs']:
             done_task = categorize_task(db, stage_name, task)
             # do the task logging (will do as default)
             if logging:
@@ -33,6 +33,34 @@ def allocate_stage_tasks(stage_name, tasks, db, done_tasks={}):
             # remove the tasks that are waiting to be done
             tasks.remove(task)
             tasks_cycle= cycle(tasks)
+        # check if it's the first task of the stage
+        elif 'stage_inputs' in task['inputs']:
+            stage_inputs = task['inputs']['stage_inputs']
+            if len(stage_inputs) == 1:
+                table_name = stage_inputs[0]['from']
+                _from_output = [db.readTableToDf(table_name)]
+                # if the first task of the stage will do sql filter, then the use the stage name for the from statement
+                done_task = categorize_task(db, stage_name, task, _from_output, stage_name)
+                # do the task logging (will do as default)
+                if logging:
+                    logging_task_output_info(stage_name, task, done_task, db)
+                done_tasks.update(done_task)
+                tasks.remove(task)
+                tasks_cycle= cycle(tasks)
+            else:
+                # do something for merging stage
+                for stage_input in stage_inputs:
+                    table_name = stage_input['from']
+                    _from_output = db.readTableToDf(table_name)
+                    done_tasks.update({table_name: [_from_output]})
+
+                done_task = merge_tasks(db, stage_name, task['id'], stage_inputs, done_tasks, task['inputs']['user_input']['field'])
+                # do the task logging (will do as default)
+                if logging:
+                    logging_task_output_info(stage_name, task, done_task, db)
+                done_tasks.update(done_task)
+                tasks.remove(task)
+                tasks_cycle= cycle(tasks)
         else:
             task_inputs = task['inputs']['task_inputs']
             # if task inputs > 1, that means a merge type of task will happen
@@ -58,22 +86,17 @@ def allocate_stage_tasks(stage_name, tasks, db, done_tasks={}):
                 else:
                     raise ValueError(f"{task['id']} has problems! The upstream task_id not found! Please check you have set your tasks correctly without wording problems!")
 
-            else:
-                # do something for merging stage
-                done_task = merge_tasks(db, stage_name, task['id'], task_inputs, done_tasks, task['inputs']['user_input']['field'])
-                # do the task logging (will do as default)
-                if logging:
-                    logging_task_output_info(stage_name, task, done_task, db)
-                done_tasks.update(done_task)
-                tasks.remove(task)
-                tasks_cycle= cycle(tasks)
+#            else:
+#                # do something for merging stage
+#                done_task = merge_tasks(db, stage_name, task['id'], task_inputs, done_tasks, task['inputs']['user_input']['field'])
+#                # do the task logging (will do as default)
+#                if logging:
+#                    logging_task_output_info(stage_name, task, done_task, db)
+#                done_tasks.update(done_task)
+#                tasks.remove(task)
+#                tasks_cycle= cycle(tasks)
         print(f"{task['id']} task has done!")
-    #print("========================================")
-    #print("tasks that have done:")
-    #print("-----------------------------------------------------------------")
-    #print(done_tasks)
-    #print("========================================")
-    #print("the last output:")
-    #print("-----------------------------------------------------------------")
+    # clear the done tasks dict after stage finished
+    done_tasks.clear()
 
     return done_task

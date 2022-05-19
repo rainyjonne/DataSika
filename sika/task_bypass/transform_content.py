@@ -14,7 +14,11 @@ from sika.task_bypass.tasktypes.transform.string_injecting import string_injecti
 
 def transform_content(task_id, inputs, function, _from_output):
     # presetting
-    task_input = inputs['task_inputs'][0]
+    if 'stage_inputs' in inputs:
+        task_input = inputs['stage_inputs'][0]
+    else:
+        task_input = inputs['task_inputs'][0]
+
     # default not preserving origin data
     extract_field = None
     preserve_origin_data = False

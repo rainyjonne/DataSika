@@ -9,7 +9,12 @@ from sika.task_bypass.tasktypes.filter.json_path import json_path
 def filter_content(task_id, inputs,  function, _from_output, _last_output_name):
     # presetting
     user_input = inputs['user_input']
-    task_input = inputs['task_inputs'][0]
+
+    if 'stage_inputs' in inputs:
+        task_input = inputs['stage_inputs'][0]
+    else:
+        task_input = inputs['task_inputs'][0]
+
     extract_field = None
     if 'extract_field' in task_input:
         extract_field = task_input['extract_field']

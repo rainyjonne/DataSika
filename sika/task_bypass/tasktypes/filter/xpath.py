@@ -1,6 +1,7 @@
 
 from lxml import html
 import pandas as pd
+from IPython import embed
 
 def xpath(df, syntax, extract_field = None):
 

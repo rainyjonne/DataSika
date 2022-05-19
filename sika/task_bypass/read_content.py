@@ -21,9 +21,13 @@ def read_content(db, stage_name, task_id, inputs, function, _from_output = None)
         raise ValueError(f"You can not run concurrent http request tasks on `list that contains over 1 dataframe`, please concat your dataframes first. #ref: {task_id}")
 
 
-
+    task_input = None
+    if 'stage_inputs' in inputs:
+        task_input = inputs['stage_inputs'][0]
     if 'task_inputs' in inputs:
         task_input = inputs['task_inputs'][0]
+
+    if task_input:
         if function == 'http-request':
             result_lists = []
             extract_field = 0

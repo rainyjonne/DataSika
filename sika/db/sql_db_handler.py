@@ -2,6 +2,7 @@ import sqlite3
 
 import os
 import logging
+import pandas as pd
 logging.basicConfig(format='%(asctime)s - %(levelname)s: %(message)s', level=logging.DEBUG)
 
 class sql_db:
@@ -39,6 +40,14 @@ class sql_db:
         self.c.execute(self.dbsql, replace_content)
         result = self.conn.commit()
         return result
+
+    def readTableToDf(self, tableName):
+        self.dbsql = f"SELECT * FROM {tableName}"
+        logging.info(f"GETTING STAGE DATA FROM - {tableName}")
+        query = self.conn.execute(self.dbsql)
+        cols = [column[0] for column in query.description]
+        results = pd.DataFrame.from_records(data = query.fetchall(), columns = cols)
+        return results
 
     def dropTable(self, tableName):
         try:

@@ -124,9 +124,9 @@ pipeline:
                   value: longitude
               params_fixed:
                 - name: date
-                  value: '2021-11'
-            task_inputs:
-              - from: concat_airbnb_dataframes
+                  value: '2022-03'
+            stage_inputs:
+              - from: airbnb_stage 
         # wanna discuss with these two tasks
         - id: getting_crime_numbers
           description: "get crime statistic data"
@@ -170,22 +170,22 @@ pipeline:
             user_input:
               field: "
                     SELECT
-                      `id`, `listing_url`, `name`, `host_location`, concat_airbnb_dataframes.latitude as `latitude`,
-                      concat_airbnb_dataframes.longitude as `longitude`, `price`, `number_of_reviews`, 
+                      `id`, `listing_url`, `name`, `host_location`, airbnb_stage.latitude as `latitude`,
+                      airbnb_stage.longitude as `longitude`, `price`, `number_of_reviews`, 
                       `review_scores_rating`, `review_scores_accuracy`, `review_scores_cleanliness`, 
                       `review_scores_checkin`, `review_scores_communication`, `review_scores_location`, `review_scores_value`,
                       `crime_incidents`, `unavailability_30`
-                    FROM concat_airbnb_dataframes
-                    INNER JOIN  concat_crime_dataframes
+                    FROM airbnb_stage 
+                    INNER JOIN crime_stage
                       ON (
-                        concat_airbnb_dataframes.latitude = concat_crime_dataframes.latitude
+                        airbnb_stage.latitude = crime_stage.latitude
                         AND
-                        concat_airbnb_dataframes.longitude = concat_crime_dataframes.longitude
+                        airbnb_stage.longitude = crime_stage.longitude
                       )
                   "
-            task_inputs:
-              - from: concat_airbnb_dataframes
-              - from: concat_crime_dataframes
+            stage_inputs:
+              - from: airbnb_stage 
+              - from: crime_stage 
         - id: transform_price
           description: "transform price"
           type: filter
