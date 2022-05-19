@@ -17,11 +17,17 @@ def allocate_stage_tasks(stage_name, tasks, db, done_tasks={}):
     while(tasks):
         task = next(tasks_cycle)
         print(f"{task['id']} task starts!")
+        # default logging is true
+        logging = True
+        if 'logging' in task:
+            logging = task['logging']
+
         # check if it's the first task
         if 'task_inputs' not in task['inputs']:
             done_task = categorize_task(db, stage_name, task)
             # do the task logging (will do as default)
-            logging_task_output_info(stage_name, task, done_task, db)
+            if logging:
+                logging_task_output_info(stage_name, task, done_task, db)
             # update the done task list
             done_tasks.update(done_task)
             # remove the tasks that are waiting to be done
@@ -44,7 +50,8 @@ def allocate_stage_tasks(stage_name, tasks, db, done_tasks={}):
                     else:
                         task_length_sanity_check(_from_output, done_task, task['id'])
                     # do the task logging (will do as default)
-                    logging_task_output_info(stage_name, task, done_task, db)
+                    if logging:
+                        logging_task_output_info(stage_name, task, done_task, db)
                     done_tasks.update(done_task)
                     tasks.remove(task)
                     tasks_cycle= cycle(tasks)
@@ -55,7 +62,8 @@ def allocate_stage_tasks(stage_name, tasks, db, done_tasks={}):
                 # do something for merging stage
                 done_task = merge_tasks(db, stage_name, task['id'], task_inputs, done_tasks, task['inputs']['user_input']['field'])
                 # do the task logging (will do as default)
-                logging_task_output_info(stage_name, task, done_task, db)
+                if logging:
+                    logging_task_output_info(stage_name, task, done_task, db)
                 done_tasks.update(done_task)
                 tasks.remove(task)
                 tasks_cycle= cycle(tasks)
