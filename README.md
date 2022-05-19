@@ -1,4 +1,4 @@
-# Yaml Pipeline Generator
+# DataSika 
 A simple python package that reads in your yaml syntax file and produce a data pipeline for you.
 ## Compatibility of python versions
 ### python versions
@@ -7,9 +7,9 @@ A simple python package that reads in your yaml syntax file and produce a data p
 - 3.9.11
 ## Environment SetUp
 ### Clone this project
-- Using command: `git clone git@github.com:rainyjonne/yaml-pipeline-generator.git`
+- Using command: `git clone git@github.com:rainyjonne/DataSika.git`
 - Manually download: clicking `Download ZIP file` from the green code button 
-### Go into the folder of yaml-pipeline-generator
+### Go into the folder of sika
 ### [Install python directly](https://www.python.org/downloads/)
 
 ### Using [pyenv](https://github.com/pyenv/pyenv)
@@ -72,9 +72,9 @@ A simple python package that reads in your yaml syntax file and produce a data p
     - Change the `.python-version` file in the project root, add in the python version on the first line in the `.python-version` file: `3.x.x`, you can do it by execute this command: `echo 3.x.x >> .python-version`.
     - Your project environment would be set to that version of python automatically.
 ###  Wrap your module **(This part is super important!)**
-  - Find your path under the `yaml-pipeline-generator` folder by execute `pwd` (e.g./Users/yanyu/Desktop/work/yaml-pipeline-generator)
+  - Find your path under the `sika` folder by execute `pwd` (e.g./Users/yanyu/Desktop/work/sika)
   - Copy the path you found by pwd, and execute this command in terminal: `echo 'export PYTHONPATH="${PYTHONPATH}:<the path you found by pwd>"' >> <~/.zshrc or ~/.bashrc>`
-  - Create db output folder: `mkdir yaml_pipeline_generator/db/outputs`
+  - Create db output folder: `mkdir sika/db/outputs`
   - Restart the shell: `source <~/.zshrc or ~/.bashrc>`
   - Check the python version is ok or not by execute this: `which python`, if it's the right version, go ahead! 
   
@@ -94,6 +94,6 @@ A simple python package that reads in your yaml syntax file and produce a data p
     1. Ruby Gems RepoMiner Example: `yml-gen --input examples/repominer.yaml`
     2. Airbnb + Crime Data Example: `yml-gen --input examples/airbnb_pipeline.yaml`
   - Using python scripts:
-    1. Ruby Gems RepoMiner Example: `python yaml_pipeline_generator/main.py --input examples/repominer.yaml`
-    2. Airbnb + Crime Data Example: `python yaml_pipeline_generator/main.py --input examples/airbnb_pipeline.yaml`
+    1. Ruby Gems RepoMiner Example: `python sika/main.py --input examples/repominer.yaml`
+    2. Airbnb + Crime Data Example: `python sika/main.py --input examples/airbnb_pipeline.yaml`
 

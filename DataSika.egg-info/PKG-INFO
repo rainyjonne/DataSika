@@ -1,0 +1,16 @@
+Metadata-Version: 2.1
+Name: DataSika
+Version: 1.0.0
+Summary: Package for building pipeline by yaml file
+Home-page: https://github.com/rainyjonne/DataSika
+Author: rainyjonne
+Author-email: rainyjonne@gmail.com
+License: MIT
+Project-URL: Bug Tracker, https://github.com/rainyjonne/DataSika/issues
+Description: This is a package which allows you to create a simple data pipeline by defining a simple yaml file
+Keywords: sika data pipeline
+Platform: UNKNOWN
+Classifier: Programming Language :: Python :: 3
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Operating System :: OS Independent
+Description-Content-Type: text/markdown

@@ -1,16 +1,16 @@
-from yaml_pipeline_generator.task_bypass.tasktypes.filter.json_path import json_path
-from yaml_pipeline_generator.task_bypass.tasktypes.filter.sql import sql 
-from yaml_pipeline_generator.task_bypass.tasktypes.filter.xpath import xpath 
-from yaml_pipeline_generator.task_bypass.tasktypes.read.http_request import http_request, http_request_dynamic
-from yaml_pipeline_generator.task_bypass.tasktypes.merge.sql_merge import sql_merge 
-from yaml_pipeline_generator.task_bypass.tasktypes.transform.decompress_content import decompress_content 
-from yaml_pipeline_generator.task_bypass.tasktypes.transform.flatten_lists_to_dataframe import flatten_lists_to_dataframe
-from yaml_pipeline_generator.task_bypass.tasktypes.transform.split_dataframe_rows import split_dataframe_rows 
-from yaml_pipeline_generator.task_bypass.tasktypes.transform.string_injecting import string_injecting 
-from yaml_pipeline_generator.task_bypass.tasktypes.transform.rename_columns import rename_columns 
-from yaml_pipeline_generator.task_bypass.tasktypes.transform.transform_to_dataframe import transform_to_dataframe, json_array_to_dataframe 
-from yaml_pipeline_generator.task_bypass.run_stages import run_stages 
-from yaml_pipeline_generator.task_bypass.allocate_stage_tasks import allocate_stage_tasks 
+from sika.task_bypass.tasktypes.filter.json_path import json_path
+from sika.task_bypass.tasktypes.filter.sql import sql 
+from sika.task_bypass.tasktypes.filter.xpath import xpath 
+from sika.task_bypass.tasktypes.read.http_request import http_request, http_request_dynamic
+from sika.task_bypass.tasktypes.merge.sql_merge import sql_merge 
+from sika.task_bypass.tasktypes.transform.decompress_content import decompress_content 
+from sika.task_bypass.tasktypes.transform.flatten_lists_to_dataframe import flatten_lists_to_dataframe
+from sika.task_bypass.tasktypes.transform.split_dataframe_rows import split_dataframe_rows 
+from sika.task_bypass.tasktypes.transform.string_injecting import string_injecting 
+from sika.task_bypass.tasktypes.transform.rename_columns import rename_columns 
+from sika.task_bypass.tasktypes.transform.transform_to_dataframe import transform_to_dataframe, json_array_to_dataframe 
+from sika.task_bypass.run_stages import run_stages 
+from sika.task_bypass.allocate_stage_tasks import allocate_stage_tasks 
 
 def function_handler(function, params: tuple):
     resp_df = globals()[function](*params)
