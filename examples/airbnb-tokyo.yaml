@@ -1,0 +1,64 @@
+name: airbnb-tokyo-listings
+
+# This is a simple EL(Extract, Load) only example for getting Tokyo airbnb listing data. 
+pipeline:
+  stages:
+    - id: airbnb_stage
+      description: "stages for airbnb data"
+      tasks:
+        - id: webscrap_airbnb
+          description: "get airbnb website page url"
+          type: read
+          function: http-request
+          inputs:
+            concurrent: true
+            user_input:
+              file_name: 'examples/input.csv'
+              file_format: csv
+              # value: 'http://insideairbnb.com/get-the-data.html' (inside the csv file)
+        - id: extract_content
+          description: "get file links by xpath syntax"
+          type: filter
+          function: xpath
+          inputs:
+            user_input:
+              field: "//a[contains(@href, 'listings.csv.gz')][contains(@href, 'http')][contains(@href, 'tokyo')]/@href"
+            task_inputs:
+              - from: webscrap_airbnb
+        - id: create_city_dataframes
+          description: "put different city data into different dataframes"
+          type: transform
+          function: split-dataframe-rows
+          inputs:
+            task_inputs:
+              - from: extract_content
+        - id: request_listing_file
+          description: "request file link"
+          type: read
+          function: http-request
+          inputs:
+            task_inputs:
+              - from: create_city_dataframes
+        # HOOK
+        - id: decompress_file_str
+          description: "decompress file str"
+          type: transform
+          function: decompress
+          inputs:
+            task_inputs:
+              - from: request_listing_file
+        - id: read_csv_str_to_table
+          description: "read csv str to dataframe"
+          type: transform
+          function: transform-to-dataframe
+          inputs:
+            task_inputs:
+              - str_type: csv
+                from: decompress_file_str
+        - id: concat_airbnb_dataframes
+          description: "concat list of airbnb dataframes together"
+          type: concat
+          function: concat
+          inputs:
+            task_inputs:
+              - from: read_csv_str_to_table 

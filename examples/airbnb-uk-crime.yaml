@@ -1,17 +1,11 @@
-name: airbnb-baby-proj
-schedule:
-  # every month's first day
-  - cron: "0 0 1 * *"
+name: airbnb-uk-crime
 
+# This is an ETL(Extract, Transform, Load) example of getting United Kingdom's 4 cities airbnb listings data then combining with United Kingdom's crime data.
 pipeline:
   stages:
     - id: airbnb_stage
       description: "stages for airbnb data"
       tasks:
-        # id: <verb>
-        # user_input:
-        #   fields:
-        #     - name: <what you will get back after the syntax> <noun>
         - id: webscrap_airbnb
           description: "get airbnb website page url"
           type: read

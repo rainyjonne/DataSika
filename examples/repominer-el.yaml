@@ -1,0 +1,58 @@
+name: repominer-el 
+
+# This is a simple EL(Extract, Load) example of getting data of ruby gem lists.
+pipeline:
+  stages:
+    - id: get_gems_stage
+      description: "stages for get basic gem infos"
+      tasks:
+        - id: get_gem_basic_infos  
+          description: "get basic infos for all gems"
+          type: read
+          function: http-request-dynamic
+          inputs:
+            concurrent: true
+            user_input:
+              base_url: "https://rubygems.org/api/v1/search.json"
+              pagination:
+                name: page
+                start: 1
+                end: 10 
+              params_fixed:
+                - name: query
+                  value: '*'
+        - id: filter_gem_names
+          description: "using jsonpath to filter out gem names"
+          type: filter
+          function: json-path 
+          inputs:
+            user_input:
+              field: '$..name' 
+            task_inputs:
+              - from: get_gem_basic_infos 
+                extract_field: text
+        - id: flatten_gem_lists 
+          description: "using flatten function to get a dataframe of gem names"
+          type: transform 
+          function: flatten-lists-to-dataframe 
+          inputs:
+            task_inputs:
+              - from: filter_gem_names 
+                extract_field: text
+        - id: rename_to_gem_names
+          description: "renamed 0 column into gem_names"
+          type: transform
+          function: rename-columns
+          inputs:
+            user_input:
+              fields: 
+                - 0: gem_names 
+            task_inputs:
+              - from: flatten_gem_lists
+        - id: concat_gem_names_dataframes 
+          description: "concat gem names dataframe"
+          type: concat 
+          function: concat
+          inputs:
+            task_inputs:
+              - from: rename_to_gem_names   

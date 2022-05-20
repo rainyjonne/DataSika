@@ -1,18 +1,11 @@
-name: repo-miner 
-schedule:
-  # every month's first day
-  - cron: "0 0 1 * *"
+name: repominer 
 
-
+# This is an ETL(Extract, Transform, Load) example of getting data of ruby gem lists & each gem's details.
 pipeline:
   stages:
     - id: get_gems_stage
       description: "stages for get basic gem infos"
       tasks:
-        # id: <verb>
-        # user_input:
-        #   fields:
-        #     - name: <what you will get back after the syntax> <noun>
         - id: get_gem_basic_infos  
           description: "get basic infos for all gems"
           type: read
