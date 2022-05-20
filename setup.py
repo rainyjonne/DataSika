@@ -1,9 +1,11 @@
 from setuptools import setup, find_packages
+from pathlib import Path
   
 with open('requirements.txt') as f:
     requirements = f.readlines()
-  
-long_description = 'This is a package which allows you to create a simple data pipeline by defining a simple yaml file'
+ 
+root_dir = Path(__file__).parent
+long_description = (root_dir / "README.md").read_text()
   
 setup(
         name ='DataSika',

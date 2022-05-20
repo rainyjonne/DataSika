@@ -4,6 +4,8 @@ Have you gotten stuck in data muds and needed to write pile of codes to handle j
 ## Compatibility of python
 - python version > `3.7`
 
+## [PyPI Package](https://pypi.org/project/DataSika/)
+
 ## Environment SetUp
 ### Clone this project `(If you wanna run some examples!)`
 - Using command: `git clone git@github.com:rainyjonne/DataSika.git`
