@@ -39,10 +39,6 @@ def session_configure(retries, concurrent):
 # input: dataframe -> output: dataframe
 def http_request(db, stage_name, task_id, url_df, extract_field = 0, preserve_origin_data = False, concurrent = False):
 
-    # for test
-    if len(url_df.index) > 1000:
-        #url_df = url_df.sample(n=10)
-        url_df = url_df[0:10]
 
     # extract_field default is 0
     rows = url_df[extract_field]
@@ -118,6 +114,7 @@ def http_request(db, stage_name, task_id, url_df, extract_field = 0, preserve_or
 
 # input: a param dataframe -> output: prepared url dataframe
 def http_request_dynamic(db, stage_name, task_id, params_df, preserve_fields = None, mapping_fields = None, pagination = None, concurrent = False):
+
     request_df = pd.DataFrame()
     base_url = params_df['base_url'][0]
     # default doesn't preserve origin data

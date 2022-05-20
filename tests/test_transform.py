@@ -132,6 +132,42 @@ def transform_setup(function):
         return transform_infos
 
 
+    if function == "sampling":
+        extract_infos = [file_info for file_info in file_infos if file_info['function'] == "sampling"] 
+        transform_infos = []
+        for info in extract_infos:
+            # get file infos
+            input_file = info['input_file']
+            output_file = info['output_file']
+            sampling_nums = info['nums']
+            seed = info['seed']
+
+            # create input & output dfs
+            input_df = pd.read_csv(input_file)
+            output_df = pd.read_csv(output_file)
+
+            transform_infos.append((input_df, output_df, sampling_nums, seed))
+
+        return transform_infos
+
+    if function == "sub-selection":
+        extract_infos = [file_info for file_info in file_infos if file_info['function'] == "sub-selection"] 
+        transform_infos = []
+        for info in extract_infos:
+            # get file infos
+            input_file = info['input_file']
+            output_file = info['output_file']
+            start_idx = info['start_idx']
+            end_idx = info['end_idx']
+
+            # create input & output dfs
+            input_df = pd.read_csv(input_file)
+            output_df = pd.read_csv(output_file)
+
+            transform_infos.append((input_df, output_df, start_idx, end_idx))
+
+        return transform_infos
+
 
 @pytest.mark.parametrize("input_df, output_df", transform_setup("decompress-content"))
 def test_decompress_content(input_df, output_df):
@@ -246,3 +282,28 @@ def test_json_array_to_dataframe(input_df, output_df, extract_field, headers):
 
     # compare columns
     assert [str(x) for x in list(output_df.columns)] == [str(x) for x in list(transformed_df.columns)]
+
+
+@pytest.mark.parametrize("input_df, output_df, sampling_nums, seed", transform_setup("sampling"))
+def test_sampling(input_df, output_df, sampling_nums, seed):
+    params = (input_df, sampling_nums, seed)
+    transformed_df = function_handler('sampling', params)
+
+    # compare values
+    assert (output_df.values ==  transformed_df.values).all()
+
+    # compare columns
+    assert [str(x) for x in list(output_df.columns)] == [str(x) for x in list(transformed_df.columns)]
+
+
+@pytest.mark.parametrize("input_df, output_df, start_idx, end_idx", transform_setup("sub-selection"))
+def test_sub_selection(input_df, output_df, start_idx, end_idx):
+    params = (input_df, start_idx, end_idx)
+    transformed_df = function_handler('sub_selection', params)
+
+    # compare values
+    assert (output_df.values ==  transformed_df.values).all()
+
+    # compare columns
+    assert [str(x) for x in list(output_df.columns)] == [str(x) for x in list(transformed_df.columns)]
+

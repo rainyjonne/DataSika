@@ -8,6 +8,8 @@ from functools import reduce
 from sika.task_bypass.tasktypes.transform.decompress_content import decompress_content
 from sika.task_bypass.tasktypes.transform.transform_to_dataframe import transform_to_dataframe, json_array_to_dataframe
 from sika.task_bypass.tasktypes.transform.rename_columns import rename_columns
+from sika.task_bypass.tasktypes.transform.sampling import sampling 
+from sika.task_bypass.tasktypes.transform.sub_selection import sub_selection 
 from sika.task_bypass.tasktypes.transform.split_dataframe_rows import split_dataframe_rows 
 from sika.task_bypass.tasktypes.transform.flatten_lists_to_dataframe import flatten_lists_to_dataframe 
 from sika.task_bypass.tasktypes.transform.string_injecting import string_injecting 
@@ -51,6 +53,34 @@ def transform_content(task_id, inputs, function, _from_output):
 
         return {
             task_id:  result_lists
+        }
+
+    if function == "sampling":
+        user_input = inputs['user_input']
+        sampling_nums = user_input["nums"]
+        seed = None
+        if 'seed' in user_input:
+            seed = user_input['seed']
+        result_lists = []
+        for single_df in _from_output:
+            result_df = sampling(single_df, sampling_nums, seed)
+            result_lists.append(result_df)
+
+        return {
+            task_id: result_lists
+        }
+
+    if function == "sub-selection":
+        user_input = inputs['user_input']
+        start_idx = user_input['start_idx']
+        end_idx = user_input['end_idx']
+        result_lists = []
+        for single_df in _from_output:
+            result_df = sub_selection(single_df, start_idx, end_idx)
+            result_lists.append(result_df)
+
+        return {
+            task_id: result_lists
         }
 
 

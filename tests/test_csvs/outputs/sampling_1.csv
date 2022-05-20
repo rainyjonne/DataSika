@@ -1,0 +1,16 @@
+0,gem_name
+https://rubygems.org/api/v1/gems/rake.json,rake
+https://rubygems.org/api/v1/gems/multi_json.json,multi_json
+https://rubygems.org/api/v1/gems/tilt.json,tilt
+https://rubygems.org/api/v1/gems/mime-types.json,mime-types
+https://rubygems.org/api/v1/gems/minitest.json,minitest
+https://rubygems.org/api/v1/gems/tzinfo.json,tzinfo
+https://rubygems.org/api/v1/gems/rspec-core.json,rspec-core
+https://rubygems.org/api/v1/gems/rspec-mocks.json,rspec-mocks
+https://rubygems.org/api/v1/gems/rack.json,rack
+https://rubygems.org/api/v1/gems/coderay.json,coderay
+https://rubygems.org/api/v1/gems/arel.json,arel
+https://rubygems.org/api/v1/gems/faraday.json,faraday
+https://rubygems.org/api/v1/gems/json.json,json
+https://rubygems.org/api/v1/gems/public_suffix.json,public_suffix
+https://rubygems.org/api/v1/gems/unf_ext.json,unf_ext

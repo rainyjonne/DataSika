@@ -29,4 +29,13 @@
   output_file: tests/test_csvs/outputs/json_array_to_dataframe_1.csv
   extract_field: body
   headers: '["gem_name", "downloads", "version", "version_downloads", "platform", "authors", "info", "licenses", "metadata", "sha", "project_uri", "gem_uri", "homepage_uri", "wiki_uri", "documentation_uri", "mailing_list_uri", "source_code_uri", "bug_tracker_uri", "changelog_uri"]'
-
+- function: sampling 
+  input_file: tests/test_csvs/inputs/sampling_1.csv
+  output_file: tests/test_csvs/outputs/sampling_1.csv
+  nums: 15
+  seed: 1
+- function: sub-selection 
+  input_file: tests/test_csvs/inputs/sub_selection_1.csv
+  output_file: tests/test_csvs/outputs/sub_selection_1.csv
+  start_idx: 0
+  end_idx: 5

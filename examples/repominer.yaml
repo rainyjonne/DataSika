@@ -17,7 +17,7 @@ pipeline:
               pagination:
                 name: page
                 start: 1
-                end: 2 
+                end: 5 
               params_fixed:
                 - name: query
                   value: '*'
@@ -49,13 +49,23 @@ pipeline:
                 - 0: gem_names 
             task_inputs:
               - from: flatten_gem_lists
+        - id: pick_sub_selections 
+          description: 'there are too many gems, so pick 60 samplings for example'
+          type: transform
+          function: sub-selection 
+          inputs:
+            user_input:
+              start_idx: 0
+              end_idx: 59 
+            task_inputs:
+              - from: rename_to_gem_names 
         - id: concat_gem_names_dataframes 
           description: "concat gem names dataframe"
           type: concat 
           function: concat
           inputs:
             task_inputs:
-              - from: rename_to_gem_names   
+              - from: pick_sub_selections   
     - id: call_gem_api_stage
       from:
         - get_gems_stage

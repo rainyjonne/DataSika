@@ -76,7 +76,7 @@ pipeline:
             task_inputs:
               - from: read_csv_str_to_table
         - id: filter_nan_rows
-          name: "filter NaN rows"
+          description: "filter NaN rows"
           type: filter
           function: sql
           inputs:
@@ -91,13 +91,23 @@ pipeline:
                   "
             task_inputs:
               - from: filter_transform_listing
+        - id: pick_samplings
+          description: 'there are too many hostings, so each city pick 15 samplings (60 for all)'
+          type: transform
+          function: sampling 
+          inputs:
+            user_input:
+              nums: 15
+              seed: 1
+            task_inputs:
+              - from: filter_nan_rows
         - id: concat_airbnb_dataframes
           description: "concat list of airbnb dataframes together"
           type: concat
           function: concat
           inputs:
             task_inputs:
-              - from: filter_nan_rows
+              - from: pick_samplings 
     - id: crime_stage
       from:
         - airbnb_stage

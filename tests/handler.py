@@ -8,6 +8,8 @@ from sika.task_bypass.tasktypes.transform.flatten_lists_to_dataframe import flat
 from sika.task_bypass.tasktypes.transform.split_dataframe_rows import split_dataframe_rows 
 from sika.task_bypass.tasktypes.transform.string_injecting import string_injecting 
 from sika.task_bypass.tasktypes.transform.rename_columns import rename_columns 
+from sika.task_bypass.tasktypes.transform.sub_selection import sub_selection 
+from sika.task_bypass.tasktypes.transform.sampling import sampling 
 from sika.task_bypass.tasktypes.transform.transform_to_dataframe import transform_to_dataframe, json_array_to_dataframe 
 from sika.task_bypass.run_stages import run_stages 
 from sika.task_bypass.allocate_stage_tasks import allocate_stage_tasks 
