@@ -59,7 +59,7 @@ def request_setup():
 
         # create input & output dfs
         input_df = pd.read_csv(input_file)
-        if 'gzip' in output_file:
+        if 'gzip' in output_file or 'webscrap' in output_file:
             f = open(output_file, "rb")
             binary_str = f.read()
             output_df = pd.DataFrame({"binary": [binary_str]})
@@ -75,6 +75,7 @@ def request_setup():
 def test_http_request(db, input_df, output_df, extract_field, preserve_origin_data, concurrent):
     params = (db, 'test_stage', 'test_id', input_df, extract_field, preserve_origin_data, concurrent)
     resp_df = function_handler('http_request', params)
+
     # because api return different message in different calling times
     # so use columns & length to do the test
     assert list(output_df.columns) == list(resp_df.columns)

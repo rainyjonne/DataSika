@@ -1,6 +1,6 @@
 - extract_field: '0'
-  input_file: tests/test_csvs/inputs/http_request_1.csv
-  output_file: tests/test_csvs/outputs/http_request_1.csv
+  input_file: tests/test_csvs/inputs/http_request_webscrap_1.csv
+  output_file: tests/test_csvs/outputs/http_request_webscrap_1.csv
   preserve_origin_data: false
   concurrent: true
 - extract_field: base_url
