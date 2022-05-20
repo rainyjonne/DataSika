@@ -14,7 +14,7 @@ def setting_args():
     parser = argparse.ArgumentParser(prog = 'sika', description = 'Build a simple pipeline by a yaml file')
     parser.add_argument('--input', help="put in an input yaml file path", type=str)
     parser.add_argument('--output', help="put a path for your output db", default='.', type=str)
-    parser.add_argument('--rerun', action='store_true')
+    parser.add_argument('--rerun', help="rerun the whole pipeline again, delete all data tables in your db file", action='store_true')
     if len(sys.argv) == 1:
         parser.print_help(sys.stderr)
         sys.exit(1)
