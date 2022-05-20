@@ -4,22 +4,20 @@ import pandas as pd
 from IPython import embed
 
 def xpath(df, syntax, extract_field = None):
-
+    
+    # using decoding utf-8 to prevent some special character problems on web-scrapping
     if df.columns[0] == 'binary':
-        bytes_str = df['binary']
+        output_str = df['binary'][0].decode('utf-8')
     # default is pure text
     elif df.columns[0] == 'text' :
         output_str = df['text'][0]
-        bytes_str = output_str.encode('utf-8')
     elif extract_field:
         output_str = df[extract_field][0]
-        bytes_str = output_str.encode('utf-8')
     else:
         output_str = _from_output[0][0]
-        bytes_str = output_str.encode('utf-8')
 
 
-    tree = html.fromstring(bytes_str)
+    tree = html.fromstring(output_str)
     filtered_result = tree.xpath(syntax)
 
     if filtered_result == []:

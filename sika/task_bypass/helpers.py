@@ -27,7 +27,6 @@ def logging_task_output_info(stage_name, task, _output, db):
         date_time = str(datetime.now())
         # logging
         db.insert('_task_log', "?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?", (level, stage_name, task_name, task_type, task_function, output_nums, '', '', date_time, error_message, ''))
-        embed()
         # break the pipeline
         raise ValueError(error_message)
 

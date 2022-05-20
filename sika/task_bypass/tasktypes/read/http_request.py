@@ -39,7 +39,6 @@ def session_configure(retries, concurrent):
 # input: dataframe -> output: dataframe
 def http_request(db, stage_name, task_id, url_df, extract_field = 0, preserve_origin_data = False, concurrent = False):
 
-
     # for test
     if len(url_df.index) > 1000:
         #url_df = url_df.sample(n=10)
@@ -66,13 +65,15 @@ def http_request(db, stage_name, task_id, url_df, extract_field = 0, preserve_or
    
     resp_list = []
     for result in results:
+        #NOTE: strongly suggest using concurrent on calling API contents
+        # webscrapping might cause some character encoding problems
         if concurrent:
             future = result
             response = future.result()
+            url = response.url
         else:
             url = result
             response = session.get(url, headers=headers) 
-        url = response.url
         date_time = str(datetime.now())
         
         status_code = response.status_code
@@ -87,9 +88,9 @@ def http_request(db, stage_name, task_id, url_df, extract_field = 0, preserve_or
         db.insert('_request_log', "?, ?, ?, ?, ?, ?, ?, ?", (level, status_code,stage_name, task_id, url, date_time, error_message, ''))
 
         content_type = response.headers['Content-Type']
-    
-        ##REMINDER:
-        if 'application/x-gzip' in content_type:
+        
+        # NOTE: if it's webscrapping then return binary content
+        if 'application/x-gzip' in content_type or 'text/html' in content_type:
             # return bytes if the file hasn't been decompress yet
             category = "binary"
             response_ret = response.content
@@ -104,7 +105,7 @@ def http_request(db, stage_name, task_id, url_df, extract_field = 0, preserve_or
     resp_df = pd.DataFrame(resp_list, columns=[extract_field, "response", "status_code", "update_time"])
     # rename dataframe columns
     resp_df.rename(columns={"response": category}, inplace=True)
-        
+     
     if preserve_origin_data:
         # join back to the original url df
         final_df = url_df.merge(resp_df, how="inner", on=extract_field) 
@@ -112,7 +113,6 @@ def http_request(db, stage_name, task_id, url_df, extract_field = 0, preserve_or
         final_df = url_df.merge(resp_df, how="inner", on=extract_field) 
         final_df = final_df[[category]]
 
-    
     return final_df
 
 
