@@ -7,7 +7,7 @@ long_description = 'This is a package which allows you to create a simple data p
   
 setup(
         name ='DataSika',
-        version ='1.0.1',
+        version ='1.0.2',
         author ='rainyjonne',
         author_email ='rainyjonne@gmail.com',
         url ='https://github.com/rainyjonne/DataSika',
