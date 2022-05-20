@@ -1,5 +1,5 @@
 import sqlite3 
-
+from IPython import embed
 import os
 import logging
 import pandas as pd
@@ -48,6 +48,48 @@ class sql_db:
         cols = [column[0] for column in query.description]
         results = pd.DataFrame.from_records(data = query.fetchall(), columns = cols)
         return results
+
+    def checkEmpty(self, tableName):
+        # check if the table is empty or not
+        self.dbsql = f"SELECT count(*) from {tableName}"
+        self.c.execute(self.dbsql)
+        result = self.conn.commit()
+        if result != 0:
+            return False
+        else:
+            return True
+
+    def checkStatusRecordExist(self, stageName): 
+        # check if the status exists or not 
+        self.dbsql = "SELECT count(*) FROM _pipeline_status WHERE done_stage = ?"
+        self.c.execute(self.dbsql, (stageName,))
+        result,  = self.c.fetchall()[0]
+        if result == 0:
+            return False 
+        else:
+            return True 
+
+    # only for update pipeline status
+    def updatePipelineStatus(self, stageName):
+        try:
+            # if the table is empty then insert one none record
+            if not self.checkStatusRecordExist(stageName):
+                self.insert('_pipeline_status', "?", (stageName, ))
+                logging.info(f"Update Pipeline Status - {stageName}")
+        except Exception as e:
+            logging.info(f"Update Pipeline Status Error! Error message: {e}")
+            return 0
+
+    def deleteRows(self, tableName):
+        self.dbsql = f"DELETE FROM {tableName}"
+        logging.info(f"DELETE ROWS FROM - {tableName}")
+        try:
+            self.c.execute(self.dbsql)
+            self.conn.commit()
+            return 1 
+        except Exception as e:
+            logging.info(f"Delete Table Rows Error! Error message: {e}")
+            return 0
 
     def dropTable(self, tableName):
         try:

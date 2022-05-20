@@ -14,6 +14,7 @@ def setting_args():
     parser = argparse.ArgumentParser(prog = 'sika', description = 'Build a simple pipeline by a yaml file')
     parser.add_argument('--input', help="put in an input yaml file path", type=str)
     parser.add_argument('--output', help="put a path for your output db", default='.', type=str)
+    parser.add_argument('--rerun', action='store_true')
     if len(sys.argv) == 1:
         parser.print_help(sys.stderr)
         sys.exit(1)
@@ -24,6 +25,7 @@ def main():
     
     start_time = time.time()
     yaml_file_name = args.input
+    rerun_flag = args.rerun
     
     with open(yaml_file_name, "r") as stream:
         file = yaml.safe_load(stream)
@@ -48,6 +50,24 @@ def main():
                 'other_info' TEXT
                 """
     db.createTable('_task_log', task_logging_table_structure) 
+    # Create pipeline status table for recording the most recent done stage
+    pipeline_status_table_structure = """
+                'done_stage' TEXT
+                """
+    db.createTable('_pipeline_status', pipeline_status_table_structure)
+
+    # Check if users want to rerun the whole pipeline
+    stage_names = [ stage['id'] for stage in my_stages ]
+    if rerun_flag:
+        db.deleteRows('_pipeline_status')
+        waited_stages = my_stages
+    else:
+        df = db.readTableToDf('_pipeline_status')
+        done_stages = list(df['done_stage'])
+        unexecute_stages = [stage_name for stage_name in stage_names if stage_name not in done_stages]
+        waited_stages = [stage for stage in my_stages if stage['id'] in unexecute_stages] 
+
+    
     # Create logging table for http requests
     request_logging_table_structure = """
                 'level' TEXT NOT NULL,
@@ -63,12 +83,16 @@ def main():
     
     
     # get stages
-    final_output = run_stages(my_stages, pipeline_name, db)
+    if waited_stages:
+        final_output = run_stages(waited_stages, pipeline_name, db, rerun_flag)
+        # get final_df
+        final_df = list(final_output.values())[0][0]
+    else:
+        # read the last stage defined in the yaml file as the last output
+        final_df = db.readTableToDf(stage_names[-1]) 
     
     duration = time.time() - start_time
     
-    # get final_df
-    final_df = list(final_output.values())[0][0]
     
     # get some information for the final df
     final_df.info()
