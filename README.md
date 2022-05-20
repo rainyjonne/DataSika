@@ -20,6 +20,18 @@ Have you gotten stuck in data muds and needed to write pile of codes to handle j
 
 ### Install our pacakge
 - Just execute this command: `pip install DataSika`, then you can happily use this command with your yaml files! :tada: :confetti_ball: 
+- Sika Command usage:
+```
+usage: sika [-h] [--input INPUT] [--output OUTPUT] [--rerun]
+
+Build a simple pipeline by a yaml file
+
+optional arguments:
+  -h, --help       show this help message and exit
+  --input INPUT    put in an input yaml file path
+  --output OUTPUT  put a path for your output db
+  --rerun          rerun the whole pipeline again, delete all data tables in your db file
+```
 
 ## Running examples
 - Making this package's command line tool works: `python setup.py install`
