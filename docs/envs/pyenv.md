@@ -2,11 +2,11 @@
 
 ## [Install pyenv](https://github.com/pyenv/pyenv#installation)
   - macOS:
-        1. `brew update`
-        2. `brew install pyenv`
+	1. `brew update`
+	2. `brew install pyenv`
   - WSL2, Linux:
-        1. `sudo apt-get update; sudo apt-get install -y --no-install-recommends make build-essential libssl-dev zlib1g-dev libbz2-dev libreadline-dev libsqlite3-dev wget curl llvm libncurses5-dev xz-utils tk-dev libxml2-dev libxmlsec1-dev libffi-dev liblzma-dev`
-        2. `git clone https://github.com/pyenv/pyenv.git ~/.pyenv`
+	1. `sudo apt-get update; sudo apt-get install -y --no-install-recommends make build-essential libssl-dev zlib1g-dev libbz2-dev libreadline-dev libsqlite3-dev wget curl llvm libncurses5-dev xz-utils tk-dev libxml2-dev libxmlsec1-dev libffi-dev liblzma-dev`
+	2. `git clone https://github.com/pyenv/pyenv.git ~/.pyenv`
 
 ## [Pyenv Shell Environment Set Up](https://github.com/pyenv/pyenv#set-up-your-shell-environment-for-pyenv)
   - Execute these lines into your `~/.bashrc` or `~/.zshrc` (You can use `echo $SHELL` to see you are `bash` or `zsh` shell
@@ -35,13 +35,13 @@
 
 ## (Optional) [Install pyenv-virtualenv](https://github.com/pyenv/pyenv-virtualenv)
   - macOS:
-        1. `brew install pyenv-virtualenv`
-        2. Put this line into your `~/.bashrc` or `~/.zshrc`: `echo 'eval "$(pyenv virtualenv-init -)"'`
-        3. Remember to restart your shell by `exec "$SHELL"` in your terminal
+	1. `brew install pyenv-virtualenv`
+	2. Put this line into your `~/.bashrc` or `~/.zshrc`: `echo 'eval "$(pyenv virtualenv-init -)"'`
+	3. Remember to restart your shell by `exec "$SHELL"` in your terminal
   - WSL2, Linux:
-        1. `git clone https://github.com/pyenv/pyenv-virtualenv.git $(pyenv root)/plugins/pyenv-virtualenv`
-        2. Put this line into your `~/.bashrc` or `~/.zshrc`: `echo 'eval "$(pyenv virtualenv-init -)"'`
-        3. Remember to restart your shell by `exec "$SHELL"` in your terminal
+	1. `git clone https://github.com/pyenv/pyenv-virtualenv.git $(pyenv root)/plugins/pyenv-virtualenv`
+	2. Put this line into your `~/.bashrc` or `~/.zshrc`: `echo 'eval "$(pyenv virtualenv-init -)"'`
+	3. Remember to restart your shell by `exec "$SHELL"` in your terminal
 
 ## (Optional) Create an virtualenvironment for yourself
   - Execute this command in your terminal: `pyenv virtualenv 3.x.x <your-virtual-env-name>`, replace the python version with the one you just installed and give a name for your virtual environment

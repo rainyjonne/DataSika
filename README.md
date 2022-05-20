@@ -1,4 +1,4 @@
-# DataSika 
+# DataSika :deer: 
 Have you gotten stuck in data muds and needed to write pile of codes to handle just a tiny data type problems? Or have you bumped into some situations that you have to check out your spaghetti codes :spaghetti: for a long time to see what's wrong when cleaning your data?  Don't worry! :relieved: Here comes `DataSika` :deer:  for you! `DataSika` is a simple python package that allows you to produce your own data pipeline locally by writing some basic **standard yaml syntaxs**. You can do **webscrapping**, **api-requesting** based on our useful functions. Also, we provide some filter availabilities for you if you want to filter out some content by **xpath (for html responses)**, **jsonpath (for json responses)** and **sql (for manipulating dataframes)**. Can't wait to try? Just install it as soon as possible and test it with examples we provided! :satisfied: :sparkles: 
 
 ## Compatibility of python
