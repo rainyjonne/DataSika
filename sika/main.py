@@ -33,7 +33,13 @@ def main():
         pipeline_name = file['name']
     
     # Create your db connection.
-    db_path = os.path.join(args.output, f'{pipeline_name}.db') 
+    db_name = f'{pipeline_name}.db'
+    if db_name in args.output:
+        if os.path.isfile(args.output):
+            db_path = args.output
+    else:
+        db_path = os.path.join(args.output, db_name)
+
     db = sql_db(db_path)
     # Create logging table for tasks
     task_logging_table_structure = """
