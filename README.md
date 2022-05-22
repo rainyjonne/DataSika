@@ -34,7 +34,7 @@ optional arguments:
   --output OUTPUT  put a path for your output db
   --rerun          rerun the whole pipeline again, delete all data tables in your db file
 ```
-
+## [Package Tutorial Documents](docs/index.md)
 ## Running examples
 - Making this package's command line tool works: `python setup.py install`
 - Running our four examples:

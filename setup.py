@@ -9,7 +9,7 @@ long_description = (root_dir / "README.md").read_text()
   
 setup(
         name ='DataSika',
-        version ='1.0.2',
+        version ='1.0.3',
         author ='rainyjonne',
         author_email ='rainyjonne@gmail.com',
         url ='https://github.com/rainyjonne/DataSika',
