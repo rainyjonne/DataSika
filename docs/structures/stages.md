@@ -5,7 +5,7 @@
 - If you concern a lot about data loss, we **strongly suggest** you to **cut your tasks into smaller stages (task groups)**.
 
 ## Structure Syntax
-```
+```yml
 stages:
   - id: <stage name (identitcal) (required)>
     description: <stage description (optional)>
@@ -14,7 +14,7 @@ stages:
 ```
 
 ## An Example
-```
+```yml
 stages:
   - id: get_uk_airbnb_data 
     description: getting airbnb host listing data of uk 

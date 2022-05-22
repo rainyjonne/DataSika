@@ -8,7 +8,7 @@
 
  
 ## Structure Syntax
-```
+```yml
 tasks:
   - id: <task name (identical) (required)>
     description: <task description (optional)>
@@ -25,7 +25,7 @@ tasks:
  
 ## An Example
 ###  read type task (http-request-dynamic) & filter type task (json-path)
-```
+```yml
 tasks:
   - id: request_uk_crime_data
     description: "mapping request params"

@@ -4,7 +4,7 @@
 - For more details, please refer to [Stages](stages.md) and [Tasks](tasks.md).
 
 ## Structure Syntax
-```
+```yml
 name: <pipeline name>
 pipeline:
   stages:
@@ -20,7 +20,7 @@ pipeline:
 ```
 
 ## An Example
-```
+```yml
 name: airbnb_uk_crime
 pipeline:
   stages:
