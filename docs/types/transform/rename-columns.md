@@ -1,7 +1,7 @@
 # rename-columns
 - rename-columns function is used for **renaming your dataframe columns**.
 - For function usage:
-  - **<the old column name>: <the new column name>**: you should use this syntax under **fields** section of `user_input` for specifying **the old columns (be replaced)** and **the new columns (replace)**. 
+  - **`<the old column name>`: `<the new column name>`**: you should use this syntax under **fields** section of `user_input` for specifying **the old columns (be replaced)** and **the new columns (replace)**. 
    
 
 # Function Syntax

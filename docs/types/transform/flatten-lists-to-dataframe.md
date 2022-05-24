@@ -1,5 +1,5 @@
 # flatten-lists-to-dataframe
-- flatten-lists-to-dataframe function is used for **flattening json-path return json lists to dataframe columns **.
+- flatten-lists-to-dataframe function is used for **flattening json-path return json lists to dataframe columns**.
   - e.g. ['dog', 'cat', 'turtle']
 - You don't need to specify any other special user inputs for this task, but you need to make sure that the extract column of your **upstream task inputs should contains json lists content**. 
 
