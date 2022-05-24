@@ -145,9 +145,9 @@ pipeline:
           inputs:
             user_input:
               field: "
-                    SELECT *, REPLACE(REPLACE(REPLACE(licenses, '[', ''), ']', ''), ' ' ,'') as licenses_transformed 
-                    FROM read_json_path_str_to_table 
-                  "
+                SELECT *, REPLACE(REPLACE(REPLACE(licenses, '[', ''), ']', ''), ' ' ,'') as licenses_transformed 
+                FROM read_json_path_str_to_table 
+                "
             task_inputs:
               - from: read_json_path_str_to_table 
         - id: concat_filter_gem_info_dataframes 
@@ -169,21 +169,20 @@ pipeline:
           inputs:
             user_input:
               field: "
-                    SELECT
-                      call_gem_api_stage.gem_name as gem_name,
-                      call_gem_api_stage.update_time as update_time,
-                      `downloads`, `version`, `version_downloads`,
-                      `platform`, `authors`, `info`,
-                      `licenses_transformed` as licenses, `metadata`,
-                      `sha`, `project_uri`, `gem_uri`, `homepage_uri`,
-                      `wiki_uri`, `documentation_uri`, `mailing_list_uri`,
-                      `source_code_uri`, `bug_tracker_uri`, `changelog_uri`
-                    FROM filter_gem_info_stage
-                    INNER JOIN  call_gem_api_stage
-                      ON (
-                       filter_gem_info_stage.gem_name = call_gem_api_stage.gem_name
-                      )
-                  "
+                SELECT call_gem_api_stage.gem_name as gem_name,
+                call_gem_api_stage.update_time as update_time,
+                `downloads`, `version`, `version_downloads`,
+                `platform`, `authors`, `info`,
+                `licenses_transformed` as licenses, `metadata`,
+                `sha`, `project_uri`, `gem_uri`, `homepage_uri`,
+                `wiki_uri`, `documentation_uri`, `mailing_list_uri`,
+                `source_code_uri`, `bug_tracker_uri`, `changelog_uri`
+                FROM filter_gem_info_stage
+                INNER JOIN  call_gem_api_stage
+                ON (
+                filter_gem_info_stage.gem_name = call_gem_api_stage.gem_name
+                )
+                "
             stage_inputs:
               - from: call_gem_api_stage 
               - from: filter_gem_info_stage
