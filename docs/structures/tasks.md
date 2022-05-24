@@ -4,7 +4,11 @@
 - Depending on the characteristics of those functions, you will need to define those tasks differently. Usually, there are **task_inputs**, **stage_inputs** and **user_input** in a task.
   - **task_inputs (defined when needed)** are used to specify the **dependencies** for the pipeline, which means that you will define **which task's output will become this task's input**. It will be defined when you are getting data from the task which comes from the **same stage**. You should specify a task id under the keyword `from` for Sika to know where to find your data.
   - **stage_inputs (defined when needed)** are used when your data comes from another stage. You should specify a stage id under the keyword `from` for Sika to know where to find your data.
-  - **user_input (required)** is used to define user provided **syntaxes** which will be applied to `the data from task_inputs` or `read in data source from the syntaxes`
+  - **user_input (defined when needed)** is used to define user provided **syntaxes** which will be applied to `the data from task_inputs` or `read in data source from the syntaxes`
+- For task inputs/stage inputs defined tasks:
+  - **from** is where you specify the upstream task id/stage id.
+  - **preserve_origin_data** is for defining whether you want to preserve the origin other data columns (meaning other columns except `base_url` columns) in the upstream task/stage. This param's **default is false**, so you don't need to define this param if you don't want to preserve your upstream task/stage's other data columns.
+  - **extract_field** is the `column_name` you specify for `base_url` column. Its **default is 0**, which because some task produces dataframes with no specific column names would produce 0. You can specify it if you wanna extract a specific column representing `base_urls`.
 
  
 ## Structure Syntax
@@ -18,7 +22,9 @@ tasks:
       user_input:
         ...
       task_inputs(optional)/stage_inputs(optional):
-        - from: <task_id (required)>/<stage_id (required)> 
+        - from: <task_id (required)>/<stage_id (required)>
+      	  preserve_origin_data: <whether to preserve other columns of data from the task input or not (optional) (default is false)> 
+          extract_field: <which column of data should be extracted (optional) (default column is 0)> 
         ...
       ...
 ```
@@ -55,5 +61,5 @@ tasks:
       task_inputs:
         - from: request_uk_crime_data
           extract_field: text
-          preserve_origin_data: True
+          preserve_origin_data: true
 ``` 
