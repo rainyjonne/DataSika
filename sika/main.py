@@ -12,9 +12,10 @@ import os
 
 def setting_args():
     parser = argparse.ArgumentParser(prog = 'sika', description = 'Build a simple pipeline by a yaml file')
-    parser.add_argument('--input', help="put in an input yaml file path", type=str)
-    parser.add_argument('--output', help="put a path for your output db", default='.', type=str)
-    parser.add_argument('--rerun', help="rerun the whole pipeline again, delete all data tables in your db file", action='store_true')
+    parser.add_argument('-i', '--input', help="put in an input yaml file path", type=str)
+    parser.add_argument('-o', '--output', help="put a path for your output db", default='.', type=str)
+    parser.add_argument('-r', '--restart', help="restart the whole pipeline again, delete all data tables in your db file", action='store_true')
+    parser.add_argument('-int', '--interactive', help="put users into interactive mode when pipeline tasks finish", action='store_true')
     if len(sys.argv) == 1:
         parser.print_help(sys.stderr)
         sys.exit(1)
@@ -25,7 +26,8 @@ def main():
     
     start_time = time.time()
     yaml_file_name = args.input
-    rerun_flag = args.rerun
+    restart_flag = args.restart
+    interactive_flag = args.interactive
     
     with open(yaml_file_name, "r") as stream:
         file = yaml.safe_load(stream)
@@ -62,9 +64,9 @@ def main():
                 """
     db.createTable('_pipeline_status', pipeline_status_table_structure)
 
-    # Check if users want to rerun the whole pipeline
+    # Check if users want to restart the whole pipeline
     stage_names = [ stage['id'] for stage in my_stages ]
-    if rerun_flag:
+    if restart_flag:
         db.deleteRows('_pipeline_status')
         waited_stages = my_stages
     else:
@@ -90,7 +92,7 @@ def main():
     
     # get stages
     if waited_stages:
-        final_output = run_stages(waited_stages, pipeline_name, db, rerun_flag)
+        final_output = run_stages(waited_stages, pipeline_name, db, restart_flag)
         # get final_df
         final_df = list(final_output.values())[0][0]
     else:
@@ -105,7 +107,8 @@ def main():
     
     # can use .head to see some sample data
     # final_df.head()
-    embed()
+    if interactive_flag:
+        embed()
     # show the results
     # final_output['concat_final_dataframes'][0]
 

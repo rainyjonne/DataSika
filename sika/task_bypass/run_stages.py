@@ -5,8 +5,8 @@ import sqlite3
 from sika.task_bypass.allocate_stage_tasks import allocate_stage_tasks
 
 
-def run_stages(stages, pipeline_name, db, rerun_flag = False, done_stages={}):
-    if rerun_flag:
+def run_stages(stages, pipeline_name, db, restart_flag = False, done_stages={}):
+    if restart_flag:
         stage_names = [ stage['id'] for stage in stages ]
         for stage_name in stage_names:
             db.dropTable(stage_name)
