@@ -1,5 +1,5 @@
 # this is the acceptance test for a simple pipeline
-from .handler import stages_handler
+from .handler import pipeline_handler
 from . import DB 
 import yaml
 import pytest
@@ -16,7 +16,7 @@ def test_stages():
         pipeline_name = file['name']
 
     params = (stages, pipeline_name, DB)
-    final_df = stages_handler('run_stages', params) 
+    final_df = pipeline_handler('run_pipeline', params) 
 
     compared_df = pd.read_csv('tests/test_csvs/outputs/run_stages.csv')
 

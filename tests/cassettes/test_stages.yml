@@ -5821,8 +5821,6 @@ interactions:
       - S1652450412.514986,VS0,VE132
       X-XSS-Protection:
       - 1; mode=block
-      transfer-encoding:
-      - chunked
     status:
       code: 200
       message: OK
@@ -5913,8 +5911,6 @@ interactions:
       - S1652450412.738969,VS0,VE141
       X-XSS-Protection:
       - 1; mode=block
-      transfer-encoding:
-      - chunked
     status:
       code: 200
       message: OK
@@ -6021,6 +6017,193 @@ interactions:
       - cache-nrt18322-NRT
       X-Timer:
       - S1652450412.979967,VS0,VE465
+      X-XSS-Protection:
+      - 1; mode=block
+    status:
+      code: 200
+      message: OK
+- request:
+    body: null
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate
+      Connection:
+      - keep-alive
+      User-Agent:
+      - python-requests/2.28.0
+    method: GET
+    uri: https://rubygems.org/api/v1/gems/sprockets-rails.json
+  response:
+    body:
+      string: !!binary |
+        H4sIAPVArGIAA5RT246bMBD9lcjPBGwIYYPUD2ilSlW7T70ITewB3IBNfUm0ivLvtdNmw253V+kb
+        Hp9z5hzPcCQKRiQ1sZPRfIfOLg3IwZKECH1QgwZhSZ1XFSvpXZ4nZI/GSq0Co0hXaU4eKw03CA5F
+        Ay5c5jRnS5YvGbunVV2wmt2lrLz7OsPP9FlFWVWtaUKmAVyrzRgkjN8+BDh412sTQOSDtr2HxSfE
+        XahL1epQ/HLxvfgcfS+kctgZcNFjQgbJUVkM7G/k4/t78iMhIzoQ4IDUx1NCHkDtUJC6hcFiQmwP
+        MdlarIuQuaw4b6vVmgKlgoky3+aixJZStoHVuqIlLehqDSzftMDaLSso3RQMRGgcXP1E7hpvZBDs
+        nZtsnWUxUoejTbXpsviR/fvsofy/rOV5FGm4CvxejzhBh89EOul6v025HrMz54XOB7mTf1nn8XM/
+        onLnp3wmdjgc0ugqYNI4hxddZZcFGcNJqq4ZpHVXfau94dhwLeZWb3O69V3jDISiuQryHlSHg+7+
+        lJQfhoS0XonYe1YSOKESqLiMe3EM531gTTFrWJPj5YeIvVyEJMTgLy8NRkTcw++e0gLfLcqQ7pTM
+        CDt8HUznUAv2Dd0nUN8NspVo3oSHtTZeORkZ1wTA4+im8Ew3Z4iUPVo/Tdq4m1mPA3qdUaQ0jUZP
+        p98AAAD//wMAHVkaLHIEAAA=
+    headers:
+      Accept-Ranges:
+      - bytes
+      Access-Control-Allow-Methods:
+      - GET
+      Access-Control-Allow-Origin:
+      - '*'
+      Access-Control-Max-Age:
+      - '1728000'
+      Cache-Control:
+      - max-age=0, private, must-revalidate
+      Connection:
+      - keep-alive
+      Content-Encoding:
+      - gzip
+      Content-Security-Policy:
+      - default-src 'self'; font-src 'self' https://fonts.gstatic.com; img-src 'self'
+        https://secure.gaug.es https://gravatar.com https://secure.gravatar.com https://*.fastly-insights.com;
+        object-src 'none'; script-src 'self' https://secure.gaug.es https://www.fastly-insights.com;
+        style-src 'self' https://fonts.googleapis.com; connect-src 'self' https://s3-us-west-2.amazonaws.com/rubygems-dumps/
+        https://*.fastly-insights.com https://fastly-insights.com https://api.github.com;
+        form-action 'self'; frame-ancestors 'self'
+      Content-Type:
+      - application/json; charset=utf-8
+      Date:
+      - Fri, 17 Jun 2022 08:53:09 GMT
+      ETag:
+      - '"1aefe37e55eac4519bfa9ef6a80c8c9f"'
+      Referrer-Policy:
+      - strict-origin-when-cross-origin
+      Server:
+      - RubyGems.org
+      Strict-Transport-Security:
+      - max-age=31536000
+      Vary:
+      - Accept-Encoding
+      Via:
+      - 1.1 varnish
+      X-Backend:
+      - F_Rails 52.11.18.225:443
+      X-Cache:
+      - MISS
+      X-Cache-Hits:
+      - '0'
+      X-Content-Type-Options:
+      - nosniff
+      X-Download-Options:
+      - noopen
+      X-Frame-Options:
+      - SAMEORIGIN
+      X-Permitted-Cross-Domain-Policies:
+      - none
+      X-Request-Id:
+      - a920d464-02a8-485b-b4b8-a3577240f9ea
+      X-Runtime:
+      - '0.022787'
+      X-Served-By:
+      - cache-qpg1279-QPG
+      X-Timer:
+      - S1655455989.012315,VS0,VE222
+      X-XSS-Protection:
+      - 1; mode=block
+      transfer-encoding:
+      - chunked
+    status:
+      code: 200
+      message: OK
+- request:
+    body: null
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate
+      Connection:
+      - keep-alive
+      User-Agent:
+      - python-requests/2.28.0
+    method: GET
+    uri: https://rubygems.org/api/v1/gems/pry.json
+  response:
+    body:
+      string: !!binary |
+        H4sIAPdArGIAA6xU227TQBD9ldU+geQ6tmO7Td6gKqVQoAp9glTR2Du2l+7FrNeNQhS+ndmmVBEP
+        FBCSLe3lzOXMnNktN6CRz3nvNjziwq6NsiAGPs+Oy7ycpcUs4nfoBmkNoZI4zeOUPx6taofgUazA
+        022WZOlRkh+l2XWazKfH8yyPZ9P80wH+IEBazop0miUR7xX4xjpNLtxYhTxg9J11BOJvbGfYO5CO
+        PavAyMGjayQa8Txip9Y4EOzCraWJ2GIDhr2S/luLDpSI2NuN2yjLPkolDbmUprHk78ptmBwYMDca
+        LzUygXeobI+O1dYMViEDQ04XLxkoCmbAyztka+k71ts1RR/V0kjjnR16rD2RYjX0UFEYL3GIWYgA
+        Ug/MW1Yh09Yh8x0lR19w65D41qjR+JhdeMpmacKt96h7f2/lpGnZ4uzqkglH0Q3rnW0daB3OCeA7
+        ZAuqFFNg2hFajJeBopI1mgGpbJ/5u4trfhNxjR4EeODzLa8piZa4tqvRSSpF530/zCeTlriNVVxb
+        PSEV3P+VstVEQ6j25PT1i/fnZ5cfzmMtKEg1tivvoL5F97QfOQwj5RPxwY6uxlVtBT5pxXcRp2be
+        ouDzBtSAZN4RAz6bVaVokrIsTo4LIQqYzsRJgUlaJAAFpBlmVZU32ORJWpV13pS5mGaIRZI1J3mR
+        Ux5UyC/UtV9yCKprUQ+xde0kLCb7caDlnyCP9mMR056MOquxp54cWJIhweIHqtISai1v5R5hRqXC
+        5NVjkAQERR1eaAgCbleKtH94/lcV/de2/R/JNKMRgcIhXexpiNHUMsh1yx+mMFSA1EvCfRhP2mx/
+        PlGBqoNAxuHXUbr7EQpvxPflmCRTZCk9TbvoEU/a76xY7Qv1O6uE7252ux8AAAD//wMAdoW4/AsF
+        AAA=
+    headers:
+      Accept-Ranges:
+      - bytes
+      Access-Control-Allow-Methods:
+      - GET
+      Access-Control-Allow-Origin:
+      - '*'
+      Access-Control-Max-Age:
+      - '1728000'
+      Cache-Control:
+      - max-age=0, private, must-revalidate
+      Connection:
+      - keep-alive
+      Content-Encoding:
+      - gzip
+      Content-Security-Policy:
+      - default-src 'self'; font-src 'self' https://fonts.gstatic.com; img-src 'self'
+        https://secure.gaug.es https://gravatar.com https://secure.gravatar.com https://*.fastly-insights.com;
+        object-src 'none'; script-src 'self' https://secure.gaug.es https://www.fastly-insights.com;
+        style-src 'self' https://fonts.googleapis.com; connect-src 'self' https://s3-us-west-2.amazonaws.com/rubygems-dumps/
+        https://*.fastly-insights.com https://fastly-insights.com https://api.github.com;
+        form-action 'self'; frame-ancestors 'self'
+      Content-Type:
+      - application/json; charset=utf-8
+      Date:
+      - Fri, 17 Jun 2022 08:53:11 GMT
+      ETag:
+      - '"e762fe8e43593e59b620d14d5744d3b7"'
+      Referrer-Policy:
+      - strict-origin-when-cross-origin
+      Server:
+      - RubyGems.org
+      Strict-Transport-Security:
+      - max-age=31536000
+      Vary:
+      - Accept-Encoding
+      Via:
+      - 1.1 varnish
+      X-Backend:
+      - F_Rails 52.11.18.225:443
+      X-Cache:
+      - MISS
+      X-Cache-Hits:
+      - '0'
+      X-Content-Type-Options:
+      - nosniff
+      X-Download-Options:
+      - noopen
+      X-Frame-Options:
+      - SAMEORIGIN
+      X-Permitted-Cross-Domain-Policies:
+      - none
+      X-Request-Id:
+      - ae47a43b-c050-4b02-899f-9b69451955c1
+      X-Runtime:
+      - '0.016138'
+      X-Served-By:
+      - cache-qpg1266-QPG
+      X-Timer:
+      - S1655455991.277599,VS0,VE690
       X-XSS-Protection:
       - 1; mode=block
       transfer-encoding:

@@ -2,8 +2,7 @@
 
 import argparse
 from IPython import embed
-from sika.task_bypass.run_stages import run_stages 
-from sika.task_bypass.allocate_stage_tasks import allocate_stage_tasks 
+from sika.task_bypass.run_pipeline import run_pipeline
 from sika.db.sql_db_handler import sql_db 
 import sqlite3
 import sys, yaml
@@ -92,7 +91,7 @@ def main():
     
     # get stages
     if waited_stages:
-        final_output = run_stages(waited_stages, pipeline_name, db, restart_flag)
+        final_output = run_pipeline(waited_stages, pipeline_name, db, restart_flag)
         # get final_df
         final_df = list(final_output.values())[0][0]
     else:
