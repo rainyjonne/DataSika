@@ -4,6 +4,13 @@ from functools import reduce
 import sqlite3
 from sika.task_bypass.allocate_stage_tasks import allocate_stage_tasks
 
+# execute any particular stage
+def run_stage(stage, db):
+    done_stage = allocate_stage_tasks(stage['id'], stage['tasks'], db)
+    # save dataframe to sqlite db
+    list(done_stage.values())[0][0].to_sql(name=stage['id'], con=db.returnConnection())
+    # update the done stage list
+    return done_stage
 
 def run_stages(stages, pipeline_name, db, restart_flag = False, done_stages={}):
     if restart_flag:
@@ -21,31 +28,18 @@ def run_stages(stages, pipeline_name, db, restart_flag = False, done_stages={}):
             upstream_stages = stage['from']
             # if it's a merge stage
             if len(upstream_stages) > 1:
-                done_stage = allocate_stage_tasks(stage['id'], stage['tasks'], db)
-                # save dataframe to sqlite db
-                list(done_stage.values())[0][0].to_sql(name=stage['id'], con=db.returnConnection())
-                # update the done stage list
-                done_stages.update({stage['id']: done_stage})
-                stages.remove(stage)
-                stages_cycle = cycle(stages)
+                done_stage = run_stage(stage, db)
 
             # if user wants to cut tasks into smaller stages
             # need to add more codes to here in the future
             else:
-                done_stage = allocate_stage_tasks(stage['id'],stage['tasks'], db)
-                # save dataframe to sqlite db
-                list(done_stage.values())[0][0].to_sql(name=stage['id'], con=db.returnConnection())
-                done_stages.update({stage['id']: done_stage})
-                stages.remove(stage)
-                stages_cycle = cycle(stages)
+                done_stage = run_stage(stage, db)
         else:
-            # update the done stage list
-            done_stage = allocate_stage_tasks(stage['id'], stage['tasks'], db)
-            # save dataframe to sqlite db
-            list(done_stage.values())[0][0].to_sql(name=stage['id'], con=db.returnConnection())
-            done_stages.update({stage['id']: done_stage})
-            stages.remove(stage)
-            stages_cycle = cycle(stages)
+            done_stage = run_stage(stage, db)
+
+        done_stages.update({stage['id']: done_stage})
+        stages.remove(stage)
+        stages_cycle = cycle(stages)
 
         # record done stage
         db.updatePipelineStatus(stage['id'])
