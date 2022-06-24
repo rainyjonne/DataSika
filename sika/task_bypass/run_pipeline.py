@@ -3,6 +3,10 @@ from itertools import cycle
 from functools import reduce
 import sqlite3
 from sika.task_bypass.allocate_stage_tasks import allocate_stage_tasks
+from sika.task_bypass.stage import Stage
+
+
+# REFACTOR TODO: make a Stage class: (1) execute stage (2) find last output of stage (...)
 
 # execute any particular stage
 def run_stage(stage, db):
@@ -19,25 +23,28 @@ def run_pipeline(stages, pipeline_name, db, restart_flag = False, done_stages={}
             db.dropTable(stage_name)
 
     # Main stages loop - might be better way in the future (e.g. parallelisim)
-    for stage in stages:
+    for stage_dict in stages:
+        stage = Stage(stage_dict)
+
         # check if it has something input from another stage
-        if 'from' in stage:
-            upstream_stages = stage['from']
+        if stage.has_antecedent():
+            upstream_stages = stage.antecedents()
+            
             # if it's a merge stage
             if len(upstream_stages) > 1:
-                done_stage = run_stage(stage, db)
+                done_stage = run_stage(stage.stage_dict, db)
 
             # if user wants to cut tasks into smaller stages
             # need to add more codes to here in the future
             else:
-                done_stage = run_stage(stage, db)
+                done_stage = run_stage(stage.stage_dict, db)
         else:
-            done_stage = run_stage(stage, db)
-            
-        done_stages.update({stage['id']: done_stage})
+            done_stage = run_stage(stage.stage_dict, db)
+
+        done_stages.update({stage.name(): done_stage})
 
         # record done stage
-        db.updatePipelineStatus(stage['id'])
+        db.updatePipelineStatus(stage.name())
 
     # return last stage's output
     return done_stage

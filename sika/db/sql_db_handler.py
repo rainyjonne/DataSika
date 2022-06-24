@@ -5,6 +5,8 @@ import logging
 import pandas as pd
 logging.basicConfig(format='%(asctime)s - %(levelname)s: %(message)s', level=logging.DEBUG)
 
+# REFACTOR TODO: Split into two classes? (1) db gateway; (2) logger that uses db gateway
+
 class sql_db:
     def __init__(self, databaseName):
       #  try:
