@@ -17,12 +17,9 @@ def run_pipeline(stages, pipeline_name, db, restart_flag = False, done_stages={}
         stage_names = [ stage['id'] for stage in stages ]
         for stage_name in stage_names:
             db.dropTable(stage_name)
-    stages_cycle = cycle(stages)
-    # this is for testing
-    # might be better way in the future (e.g. parallelisim)
-    # using a while loop to keep tracking if the stages are done or not
-    while(stages):
-        stage = next(stages_cycle)
+
+    # Main stages loop - might be better way in the future (e.g. parallelisim)
+    for stage in stages:
         # check if it has something input from another stage
         if 'from' in stage:
             upstream_stages = stage['from']
@@ -36,10 +33,8 @@ def run_pipeline(stages, pipeline_name, db, restart_flag = False, done_stages={}
                 done_stage = run_stage(stage, db)
         else:
             done_stage = run_stage(stage, db)
-
+            
         done_stages.update({stage['id']: done_stage})
-        stages.remove(stage)
-        stages_cycle = cycle(stages)
 
         # record done stage
         db.updatePipelineStatus(stage['id'])
