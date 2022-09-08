@@ -49,3 +49,14 @@ optional arguments:
     3. (EL) Getting Ruby Gem Lists Example: `python sika/main.py --input examples/repominer-el.yaml`
     4. (EL) Airbnb Japan Hostings Example: `python sika/main.py --input examples/airbnb-tokyo.yaml`
 
+## Running tests
+- Tests should be run under the root folder of DataSika
+### Unit tests
+- read type tasks: `pytest tests/test_read.py`
+- filter type tasks: `pytest tests/test_filter.py`
+- merge type tasks: `pytest tests/test_merge.py`
+- transform type tasks: `pytest tests/test_transform.py`
+### Integration test
+- `pytest tests/test_tasks.py`
+### Acceptance test
+- `pytest tests/test_stages.py`
