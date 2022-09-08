@@ -25,8 +25,9 @@ def pipeline_handler(function, params: tuple):
     return final_df
 
 
-def tasks_handler(function, params: tuple):
-    final_output = globals()[function](*params)
+def tasks_handler(stage_obj, db):
+    final_output = stage_obj.run(db)
     final_df = list(final_output.values())[0][0]
     return final_df
+
 
