@@ -31,7 +31,14 @@ def main():
     with open(yaml_file_name, "r") as stream:
         file = yaml.safe_load(stream)
         my_stages = file['pipeline']['stages']
+        # REFACTOR: 
+        # pipeline_syntax = PipelineSyntax.new(file)
+        # pipeline = Pipeline.new(pipeline_syntax)
+        # my_stages = pipeline.stages
+
         pipeline_name = file['name']
+        # REFACTOR:
+        # pipeline.name
     
     # Create your db connection.
     db_name = f'{pipeline_name}.db'
@@ -65,6 +72,9 @@ def main():
 
     # Check if users want to restart the whole pipeline
     stage_names = [ stage['id'] for stage in my_stages ]
+    # REFACTOR:
+    # stage_names = pipeline.stages.names()
+
     if restart_flag:
         db.deleteRows('_pipeline_status')
         waited_stages = my_stages

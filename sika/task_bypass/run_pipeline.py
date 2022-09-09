@@ -16,25 +16,7 @@ def run_pipeline(stages, pipeline_name, db, restart_flag = False):
     for stage_dict in stages:
         stage = Stage(stage_dict)
 
-        # TODO NEXT: See if all these commented lines are needed for any of the tests
-        
-        # # check if it has something input from another stage
-        # if stage.has_antecedent():
-        #     upstream_stages = stage.antecedents()
-            
-        #     # if it's a merge stage
-        #     if len(upstream_stages) > 1:
-        #         done_stage = stage.run(db)
-
-        #     # if user wants to cut tasks into smaller stages
-        #     # need to add more codes to here in the future
-        #     else:
-        #         done_stage = stage.run(db)
-        # else:
-        #     done_stage = stage.run(db)
         done_stage = stage.run(db)
-
-        # done_stages.update({stage.name(): done_stage})
 
         # record done stage
         db.updatePipelineStatus(stage.name())
