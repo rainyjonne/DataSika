@@ -1,5 +1,5 @@
 # 1) test for some repominer tasks
-id: get_gems_stage
+id: get_gems_stage_for_tasks
 description: "stages for get basic gem infos"
 output_path: 'tests/test_csvs/outputs/run_tasks_1.csv'
 tasks:
