@@ -3,6 +3,8 @@
 import argparse
 from IPython import embed
 from sika.task_bypass.run_pipeline import run_pipeline
+from sika.task_bypass.pipeline import Pipeline
+from sika.task_bypass.pipeline_syntax import PipelineSyntax
 from sika.db.sql_db_handler import sql_db 
 import sqlite3
 import sys, yaml
@@ -30,18 +32,18 @@ def main():
     
     with open(yaml_file_name, "r") as stream:
         file = yaml.safe_load(stream)
-        my_stages = file['pipeline']['stages']
+        # my_stages = file['pipeline']['stages']
         # REFACTOR: 
-        # pipeline_syntax = PipelineSyntax.new(file)
-        # pipeline = Pipeline.new(pipeline_syntax)
-        # my_stages = pipeline.stages
+        pipeline_syntax = PipelineSyntax(file)
+        pipeline = pipeline_syntax.build_entity()
+        _stages = pipeline.stages
 
-        pipeline_name = file['name']
+        # pipeline_name = file['name']
         # REFACTOR:
         # pipeline.name
     
     # Create your db connection.
-    db_name = f'{pipeline_name}.db'
+    db_name = f'{pipeline.name}.db'
     if db_name in args.output:
         if os.path.isfile(args.output):
             db_path = args.output
@@ -71,18 +73,18 @@ def main():
     db.createTable('_pipeline_status', pipeline_status_table_structure)
 
     # Check if users want to restart the whole pipeline
-    stage_names = [ stage['id'] for stage in my_stages ]
+    # stage_names = [ stage['id'] for stage in _stages ]
     # REFACTOR:
-    # stage_names = pipeline.stages.names()
+    stage_names = pipeline.stages.names()
 
     if restart_flag:
         db.deleteRows('_pipeline_status')
-        waited_stages = my_stages
+        waited_stages = _stages
     else:
         df = db.readTableToDf('_pipeline_status')
         done_stages = list(df['done_stage'])
         unexecute_stages = [stage_name for stage_name in stage_names if stage_name not in done_stages]
-        waited_stages = [stage for stage in my_stages if stage['id'] in unexecute_stages] 
+        waited_stages = [stage for stage in _stages if stage.name in unexecute_stages] 
 
     
     # Create logging table for http requests
@@ -101,7 +103,7 @@ def main():
     
     # get stages
     if waited_stages:
-        final_output = run_pipeline(waited_stages, pipeline_name, db, restart_flag)
+        final_output = run_pipeline(waited_stages, pipeline.name, db, restart_flag)
         # get final_df
         final_df = list(final_output.values())[0][0]
     else:

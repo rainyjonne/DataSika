@@ -1,3 +1,5 @@
+from sika.task_bypass.stage import Stage
+
 class StageSyntax:
     def __init__(self, syntax):
         self.syntax = syntax
@@ -6,4 +8,4 @@ class StageSyntax:
         return self.syntax['id']
 
     def build_entity(self):
-        return Stage.new(self.syntax)
+        return Stage(self.syntax)

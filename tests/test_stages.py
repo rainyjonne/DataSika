@@ -5,6 +5,9 @@ import yaml
 import pytest
 import pandas as pd
 import vcr
+from sika.task_bypass.run_pipeline import run_pipeline
+from sika.task_bypass.pipeline import Pipeline
+from sika.task_bypass.pipeline_syntax import PipelineSyntax
 
 
 
@@ -12,8 +15,10 @@ import vcr
 def test_stages():
     with open('tests/test_yamls/test_run_stages.yml', "r") as stream:
         file = yaml.safe_load(stream)
-        stages = file['pipeline']['stages']
-        pipeline_name = file['name']
+        pipeline_syntax = PipelineSyntax(file)
+        pipeline = pipeline_syntax.build_entity()
+        stages = pipeline.stages
+        pipeline_name = pipeline.name
 
     params = (stages, pipeline_name, DB)
     final_df = pipeline_handler('run_pipeline', params)

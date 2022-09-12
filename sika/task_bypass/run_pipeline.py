@@ -8,13 +8,12 @@ from sika.task_bypass.stage import Stage
 
 def run_pipeline(stages, pipeline_name, db, restart_flag = False):
     if restart_flag:
-        stage_names = [ stage['id'] for stage in stages ]
+        stage_names = stages.names()
         for stage_name in stage_names:
             db.dropTable(stage_name)
 
     # Main stages loop - might be better way in the future (e.g. parallelisim)
-    for stage_dict in stages:
-        stage = Stage(stage_dict)
+    for stage in stages.stages:
 
         done_stage = stage.run(db)
 
