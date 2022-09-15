@@ -1,15 +1,11 @@
 # this is the acceptance test for a simple pipeline
-from .handler import pipeline_handler
 from . import DB 
 import yaml
 import pytest
 import pandas as pd
 import vcr
-from sika.task_bypass.run_pipeline import run_pipeline
 from sika.task_bypass.pipeline import Pipeline
 from sika.task_bypass.pipeline_syntax import PipelineSyntax
-
-
 
 @vcr.use_cassette("tests/cassettes/test_stages.yml", record_mode="new_episodes")
 def test_stages():
@@ -20,8 +16,7 @@ def test_stages():
         stages = pipeline.stages
         pipeline_name = pipeline.name
 
-    params = (stages, pipeline_name, DB)
-    final_df = pipeline_handler('run_pipeline', params)
+    final_df = pipeline.run(DB)
 
     compared_df = pd.read_csv('tests/test_csvs/outputs/run_stages.csv')
 
