@@ -2,8 +2,9 @@
 
 import argparse
 from IPython import embed
-from sika.task_bypass.run_stages import run_stages 
-from sika.task_bypass.allocate_stage_tasks import allocate_stage_tasks 
+from sika.task_bypass.pipeline import Pipeline
+from sika.task_bypass.stages import Stages
+from sika.task_bypass.pipeline_syntax import PipelineSyntax
 from sika.db.sql_db_handler import sql_db 
 import sqlite3
 import sys, yaml
@@ -31,11 +32,12 @@ def main():
     
     with open(yaml_file_name, "r") as stream:
         file = yaml.safe_load(stream)
-        my_stages = file['pipeline']['stages']
-        pipeline_name = file['name']
+        pipeline_syntax = PipelineSyntax(file)
+        pipeline = pipeline_syntax.build_entity()
+        _stages = pipeline.stages
     
     # Create your db connection.
-    db_name = f'{pipeline_name}.db'
+    db_name = f'{pipeline.name}.db'
     if db_name in args.output:
         if os.path.isfile(args.output):
             db_path = args.output
@@ -65,15 +67,11 @@ def main():
     db.createTable('_pipeline_status', pipeline_status_table_structure)
 
     # Check if users want to restart the whole pipeline
-    stage_names = [ stage['id'] for stage in my_stages ]
-    if restart_flag:
+    if restart_flag: # if restarting a previously stopped pipeline from beginning
         db.deleteRows('_pipeline_status')
-        waited_stages = my_stages
-    else:
-        df = db.readTableToDf('_pipeline_status')
-        done_stages = list(df['done_stage'])
-        unexecute_stages = [stage_name for stage_name in stage_names if stage_name not in done_stages]
-        waited_stages = [stage for stage in my_stages if stage['id'] in unexecute_stages] 
+        waited_stages = _stages
+    else:            # if starting or continuing a new pipeline
+        waited_stages = _stages.get_unexecuted_stages(db)
 
     
     # Create logging table for http requests
@@ -89,18 +87,14 @@ def main():
                 """
     db.createTable('_request_log', request_logging_table_structure) 
     
-    
     # get stages
     if waited_stages:
-        final_output = run_stages(waited_stages, pipeline_name, db, restart_flag)
-        # get final_df
-        final_df = list(final_output.values())[0][0]
+        final_df = pipeline.run(db, restart_flag, waited_stages)
     else:
         # read the last stage defined in the yaml file as the last output
-        final_df = db.readTableToDf(stage_names[-1]) 
+        final_df = pipeline.gather_last_result(db)
     
     duration = time.time() - start_time
-    
     
     # get some information for the final df
     final_df.info()
@@ -109,8 +103,6 @@ def main():
     # final_df.head()
     if interactive_flag:
         embed()
-    # show the results
-    # final_output['concat_final_dataframes'][0]
 
 if __name__ == '__main__':
     main()

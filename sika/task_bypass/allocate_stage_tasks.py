@@ -9,7 +9,9 @@ from sika.task_bypass.helpers import task_length_sanity_check, concat_task_lengt
 from itertools import cycle
 from IPython import embed
 
-def allocate_stage_tasks(stage_name, tasks, db, done_tasks={}):
+def allocate_stage_tasks(stage, db, done_tasks={}):
+    stage_name = stage['id']
+    tasks = stage['tasks']
     tasks_cycle= cycle(tasks)
     # this is for testing
     # might be better way in the future

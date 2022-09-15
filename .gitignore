@@ -5,7 +5,7 @@ __pycache__/
 *.sw[op]
 .DS_Store
 .python-version
-
+_*/
 # Distribution / packaging
 bin/
 build/
