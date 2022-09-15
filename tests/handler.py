@@ -11,19 +11,11 @@ from sika.task_bypass.tasktypes.transform.rename_columns import rename_columns
 from sika.task_bypass.tasktypes.transform.sub_selection import sub_selection 
 from sika.task_bypass.tasktypes.transform.sampling import sampling 
 from sika.task_bypass.tasktypes.transform.transform_to_dataframe import transform_to_dataframe, json_array_to_dataframe 
-from sika.task_bypass.run_pipeline import run_pipeline
 from sika.task_bypass.allocate_stage_tasks import allocate_stage_tasks 
 
 def function_handler(function, params: tuple):
     resp_df = globals()[function](*params)
     return resp_df
-
-
-def pipeline_handler(function, params: tuple):
-    final_output = globals()[function](*params)
-    final_df = final_output['concat_final_dataframes'][0]
-    return final_df
-
 
 def tasks_handler(stage_obj, db):
     final_output = stage_obj.run(db)
