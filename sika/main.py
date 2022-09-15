@@ -3,6 +3,7 @@
 import argparse
 from IPython import embed
 from sika.task_bypass.pipeline import Pipeline
+from sika.task_bypass.stages import Stages
 from sika.task_bypass.pipeline_syntax import PipelineSyntax
 from sika.db.sql_db_handler import sql_db 
 import sqlite3
@@ -66,16 +67,11 @@ def main():
     db.createTable('_pipeline_status', pipeline_status_table_structure)
 
     # Check if users want to restart the whole pipeline
-    stage_names = pipeline.stages.names()
-
     if restart_flag: # if restarting a previously stopped pipeline from beginning
         db.deleteRows('_pipeline_status')
         waited_stages = _stages
     else:            # if starting or continuing a new pipeline
-        df = db.readTableToDf('_pipeline_status')
-        done_stages = list(df['done_stage'])
-        unexecute_stages = [stage_name for stage_name in stage_names if stage_name not in done_stages]
-        waited_stages = [stage for stage in _stages if stage.name in unexecute_stages] 
+        waited_stages = _stages.get_unexecuted_stages(db)
 
     
     # Create logging table for http requests
@@ -93,10 +89,10 @@ def main():
     
     # get stages
     if waited_stages:
-        final_df = pipeline.run(db, restart_flag)
+        final_df = pipeline.run(db, restart_flag, waited_stages)
     else:
         # read the last stage defined in the yaml file as the last output
-        final_df = db.readTableToDf(stage_names[-1]) 
+        final_df = pipeline.gather_last_result(db)
     
     duration = time.time() - start_time
     
